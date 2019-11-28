@@ -3,7 +3,7 @@
 
 Stromzähler/Smartmeter via ModBus und Raspberry Pi auslesen, die Werte in eine Datenbank speichern und mit Grafana visualisieren
 
-#Vorbereitungen
+# Vorbereitungen
 
 ## Benötigte Hardware
 
