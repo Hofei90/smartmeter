@@ -30,18 +30,21 @@ Angaben ohne Gewähr! Besser nochmals nach Anleitung prüfen**
 * Toml
 * SQLAlchemy
 * sshtunnel
+* serial
+* minimalmodbus in Version 0.7 (neuer funktioniert nicht!)
 
 Installation dieser:
 
 Apt Installation erfordert ggf. root Rechte! Paketquellen zuvor updaten. (apt update)
 
-    apt install build-essential libssl-dev libffi-dev python3-dev
+    apt install build-essential libssl-dev libffi-dev python3-dev libpq5
 
 
     pip3 install --user toml
     pip3 install --user SQLAlchemy psycopg2-binary
     pip3 install --user cryptography paramiko sshtunnel
-    pip3 install --user systemd-python
+    pip3 install --user systemd-python serial
+    pip3 install --user minimalmodbus==0.7
 
 
 ### Telegram
@@ -272,15 +275,13 @@ Ausführung erfordert Rootrechte
     # Pfad zum speichern: /etc/systemd/system/smartmeter.service
     [Unit]
     Description=ServiceUnit zum starten des Smartmeters
+    After=network.target
     
     [Service]
     Type=simple
     ExecStart=/usr/bin/python3 /home/pi/smartmeter/smartmeter.py
-    Restart=always
-    StartLimitIntervalSec=120
-    StartLimitBurst=4
     User=pi
-    After=network.target
+    
     
     [Install]
     WantedBy=multi-user.target
