@@ -85,7 +85,7 @@ Wenn dieser Erfolgreich verläuft:
 
 ### Service Unit erstellen
 
-Ausführung erfordert Rootrechte
+Ausführung erfordert root Rechte
 
 `nano /etc/systemd/system/smartmeter.service`
 
@@ -107,7 +107,7 @@ WantedBy=multi-user.target
 
 `systemctl start smartmeter.service`
 
-Kontrolle ob Skript nun wieder aktiv ist, wenn ja automtische Ausführung anlegen:
+Kontrolle ob Skript nun wieder aktiv ist, wenn ja automatische Ausführung anlegen:
 
 `systemctl enable smartmeter.service`
 
