@@ -5,186 +5,131 @@ import time
 import traceback
 from copy import deepcopy
 
-import psycopg2
 import toml
-from sshtunnel import SSHTunnelForwarder
 
 import electric_meter
 import setup_logging
-from smartmeter_telegrambot import SmartmeterBot
+import db_model as db
+import db_postgrest_model as db_postgrest
+
 
 CONFIGDATEI = "smartmeter_cfg.toml"
-DEMANDDATEI = "demand_cfg.toml"
 FEHLERDATEI = "fehler_smartmeter.log"
 SKRIPTPFAD = os.path.abspath(os.path.dirname(__file__))
 
 
 def load_config():
-    """
-    Lädt die Konfiguration aus dem smartmeter_cfg.toml File
-    :return:
-    """
+    """Lädt die Konfiguration aus dem smartmeter_cfg.toml File"""
     configfile = os.path.join(SKRIPTPFAD, CONFIGDATEI)
     with open(configfile) as conffile:
         config = toml.loads(conffile.read())
-    config["ssh"] = {}
-    with open(config["pg"]["pfad_zu_ssh_auth"]) as confsshfile:
-        config["ssh"] = toml.loads(confsshfile.read())
     return config
 
 
 LOGGER = setup_logging.create_logger("smartmeter", 20)
 CONFIG = load_config()
 
-DAUER_SCHNELLINTERVALL = CONFIG["pg"]["dauer_schnellintervall"]
-SCHNELLINTERVALL = CONFIG["pg"]["schnellintervall"]
+if CONFIG["telegram_bot"]["token"]:
+    from smartmeter_telegrambot import SmartmeterBot
 
 
 class MessHandler:
     """
-    Klasse zuständig für das organiesieren, dass Messwerte ausgelesen, gespeichert und in die Datenbank
+    MessHandler ist zuständig für das organiesieren, dass Messwerte ausgelesen, gespeichert und in die Datenbank
     geschrieben werden.
     """
     def __init__(self, messregister):
         self.schnelles_messen = False
-        self.startzeit_schnelles_messen = False
+        self.startzeit_schnelles_messen = datetime.datetime(1970, 1, 1)
         self.messregister = messregister
         self.messregister_save = deepcopy(messregister)
         self.messwerte_liste = []
-        self.intervall_daten_senden = CONFIG["pg"]["intervall_daten_senden"]
+        self.intervall_daten_senden = CONFIG["mess_cfg"]["intervall_daten_senden"]
+        self.pausenzeit = CONFIG["mess_cfg"]["messintervall"]
 
     def set_schnelles_messintervall(self, *_):
-        """
-        Kommt von außerhalb das Signal USR2 wird das Mess und Sendeintervall verkürzt
-        """
+        """Kommt von außerhalb das Signal USR2 wird das Mess und Sendeintervall verkürzt"""
         self.schnelles_messen = True
         self.startzeit_schnelles_messen = datetime.datetime.now()
-        for key in self.messregister:
-            self.messregister[key]["intervall"] = SCHNELLINTERVALL
-        self.intervall_daten_senden = SCHNELLINTERVALL
+        self.intervall_daten_senden = CONFIG["mess_cfg"]["schnelles_messintervall"]
+        self.pausenzeit = CONFIG["mess_cfg"]["schnelles_messintervall"]
 
     def off_schnelles_messintervall(self):
-        """
-        Mess und Sendeintervall wird wieder auf Standardwerte zurückgesetzt
-        :return:
-        """
-        messintervall = deepcopy(self.messregister_save)
-        for key in self.messregister:
-            self.messregister[key]["intervall"] = messintervall[key]["intervall"]
+        """Mess und Sendeintervall wird wieder auf Standardwerte zurückgesetzt"""
         self.schnelles_messen = False
-        self.intervall_daten_senden = CONFIG["pg"]["intervall_daten_senden"]
+        self.startzeit_schnelles_messen = datetime.datetime(1970, 1, 1)
+        self.intervall_daten_senden = CONFIG["mess_cfg"]["intervall_daten_senden"]
+        self.pausenzeit = CONFIG["mess_cfg"]["messintervall"]
 
     def add_messwerte(self, messwerte):
-        """
-        Speichern der Messwerte bis zu Ihrer Übertragung
-        :param messwerte: list
-        :return:
-        """
+        """Speichern der Messwerte zwischen bis zu Ihrer Übertragung"""
         self.messwerte_liste.append(messwerte)
 
-    def write_messwerte(self, pg_handler):
-        """
-        Gespeicherte Messwerte werden nach Aufbau eines SSH Tunnels in die Datenbank geschrieben
-        :return:
-        """
+    def schreibe_messwerte(self, datenbankschnittstelle):
+        """Gespeicherte Messwerte in die Datenbank geschrieben"""
         LOGGER.debug("Sende Daten")
-        pg_handler.daten_schreiben(self.messwerte_liste)
+        datenbankschnittstelle.insert_many(self.messwerte_liste)
         self.messwerte_liste = []
 
+    def erstelle_auszulesende_messregister(self):
+        """Prüft welche Messwerte nach Ihren Intervalleinstellungen im aktuellen Durchlauf ausgelesen werden müssen"""
+        if self.schnelles_messen:
+            return [key for key in self.messregister]
+        else:
+            return [key for key in self.messregister if self.messregister[key]["verbleibender_durchlauf"] <= 1]
 
-class PGHandler:
-    """
-    Zuständige Klasse für die Eintragungen in die PostGreSQL Datenbank
-    """
-    def __init__(self, port):
-        self.pguser = CONFIG["pg"]["pguser"]
-        self.pgpw = CONFIG["pg"]["pgpw"]
-        self.port = port
-        self.db = CONFIG["pg"]["db"]
-        self.connection = None
-        self.connect_db()
+    def reduziere_durchlauf_anzahl(self):
+        for key in self.messregister:
+            self.messregister[key]["verbleibender_durchlauf"] -= 1
 
-    def __del__(self):
-        self.close_db()
-
-    def connect_db(self):
-        self.connection = psycopg2.connect(dbname=self.db, user=self.pguser, password=self.pgpw,
-                                           port=self.port, host="localhost")
-
-    def close_db(self):
-        self.connection.close()
-
-    def daten_schreiben(self, daten_liste):
-        """
-        Daten werden in die Datenbank geschrieben
-        Spalten und Values werden analysiert und SQL String aufbereitet
-        :param daten_liste:
-        :return:
-        """
-        with self.connection.cursor() as curs:
-            for daten in daten_liste:
-                values = []
-                spalte_liste = []
-                for spalte, wert in daten.items():
-                    values.append(wert)
-                    spalte_liste.append(spalte)
-                values_var = ', '.join(['%s'] * (len(spalte_liste)))
-                spalten = ", ".join(spalte_liste)
-                sql = "INSERT INTO smartmeter ({spalten}) VALUES ({values_var})".format(spalten=spalten,
-                                                                                        values_var=values_var)
-                try:
-                    curs.execute(sql, values)
-                except psycopg2.IntegrityError:
-                    LOGGER.warning("duplicate key value vorhanden - ignorieren")
-                    self.connection.rollback()
-                else:
-                    self.connection.commit()
+    def durchlauf_zuruecksetzen(self, messauftrag):
+        for key in messauftrag:
+            self.messregister[key]["verbleibender_durchlauf"] = deepcopy(self.messregister[key]["intervall"])
 
 
-def set_messzeitpunkt(messregister, zeitpunkt=datetime.datetime.now().replace(microsecond=0)-datetime.timedelta(days=1),
-                      messauftrag=None):
-    """
-    Setzten des letzten Zeitpunktes, wann die Messwerte ausgelesen worden sind
-    Wird kein zeitpunkt übergeben, so wird von der aktuellen Zeit ein Tag zurückgerechnet. Dies ist für die
-    erste Ausführung erforderlich, damit sofort mit dem Messen begonnen wird.
-    :param messregister:
-    :param zeitpunkt:
-    :param messauftrag:
-    :return:
-    """
-    for key in messregister:
-        if messauftrag is not None and key not in messauftrag:
-            continue
-        messregister[key]["messzeitpunkt"] = zeitpunkt
+class Datenbankschnittstelle:
+    def __init__(self, db_adapter):
+        self.db_adapter = db_adapter
+        if db_adapter == "postgrest":
+            self.headers = {f"Authorization": "{user} {token}".format(user=CONFIG["db"]["postgrest"]["user"],
+                                                                      token=CONFIG["db"]["postgrest"]["token"])}
+            url = CONFIG["db"]["postgrest"]["url"]
+            if not url.endswith("/"):
+                url = f"{url}/"
+            self.url = "{url}{table}".format(url=url,
+                                             table=CONFIG["db"]["postgrest"]["table"])
+            self.none_messdaten = self.__none_messdaten_dictionary_erstellen()
+        else:
+            self.headers = None
+            self.url = None
+            db_adapter = CONFIG["db"]["db"]
+            db_ = db.init_db(CONFIG["db"][db_adapter]["database"], db_adapter, CONFIG["db"].get(db_adapter))
+            db.DB_PROXY.initialize(db_)
+            db.create_tables()
 
+    def insert_many(self, daten):
+        if self.db_adapter == "postgrest":
+            db_postgrest.sende_daten(self.url, self.headers, daten, self.none_messdaten)
+        else:
+            db.insert_many(daten)
 
-def create_auszulesende_messregister(messregister, now):
-    """
-    Prüft welche Messwerte nach Ihren Intervalleinstellungen im aktuellen Durchlauf ausgelesen werden müssen
-    :param messregister:
-    :param now:
-    :return:
-    """
-    return [key for key in messregister if
-            (now - messregister[key]["messzeitpunkt"]).total_seconds() >= messregister[key]["intervall"]]
+    @staticmethod
+    def __none_messdaten_dictionary_erstellen():
+        none_daten = {"ts": None}
+        for key in CONFIG["durchlaufintervall"]:
+            none_daten[key.lower()] = None
+        return none_daten
 
 
 def erzeuge_messregister():
-    """
-    Erzeugt das messregister nach dem Start des Skriptes, abhängig der Konfigurationseinstellungen, in die passende
-    Struktur.
-    :return:
-    """
+    """Erzeugt das messregister nach dem Start des Skriptes"""
     messregister = {}
-    for key, value in CONFIG["messintervall"][0].items():
-        messregister[key] = {}
-        messregister[key]["intervall"] = value
+    for key, value in CONFIG["durchlaufintervall"].items():
+        if value:
+            messregister[key] = {}
+            messregister[key]["intervall"] = value
+            messregister[key]["verbleibender_durchlauf"] = 0
     return messregister
-
-
-def change_holding_register():
-    """Eventuell zukünftige Funktion zum schreiben der Demand Werte in die Register des Smartmeters"""
-    pass
 
 
 def fehlermeldung_schreiben(fehlermeldung):
@@ -199,14 +144,15 @@ def fehlermeldung_schreiben(fehlermeldung):
 
 
 def main():
+    datenbankschnittstelle = Datenbankschnittstelle(CONFIG["db"]["db"])
     messregister = erzeuge_messregister()
-    set_messzeitpunkt(messregister)
     messhandler = MessHandler(messregister)
-    telegram_bot = SmartmeterBot(CONFIG["telegram_bot"]["token"], LOGGER)
+    if CONFIG["telegram_bot"]["token"]:
+        telegram_bot = SmartmeterBot(CONFIG["telegram_bot"]["token"], LOGGER)
+    else:
+        telegram_bot = None
 
-    # SIGUSR1 beschreibt die Holding Register mit den eingestellten werden in der Config Datei
     # SIGUSR2 setzt das schnelle Messintervall
-    signal.signal(signal.SIGUSR1, change_holding_register)
     signal.signal(signal.SIGUSR2, messhandler.set_schnelles_messintervall)
     smartmeter = electric_meter.SDM530(serial_if=CONFIG["modbus"]["serial_if"],
                                        serial_if_baud=CONFIG["modbus"]["serial_if_baud"],
@@ -215,42 +161,47 @@ def main():
                                        serial_if_stop=CONFIG["modbus"]["serial_if_stop"],
                                        slave_addr=CONFIG["modbus"]["slave_addr"],
                                        logger=LOGGER)
-    zeitpunkt_daten_gesendet = datetime.datetime.now()
-    with SSHTunnelForwarder(
-            (CONFIG["ssh"]["ip_server"], CONFIG["ssh"]["ssh_port"]), ssh_username=CONFIG["ssh"]["user"],
-            ssh_password=CONFIG["ssh"]["pw"], remote_bind_address=('127.0.0.1', CONFIG["pg"]["pgport"])) as server:
-        pg_handler = PGHandler(server.local_bind_port)
-        while True:
-            now = datetime.datetime.now()
-            now = now.replace(microsecond=0)
 
-            # Prüfen ob schnelles Messen aktiv ist und ob dies wieder auf Standard zurück gesetzt werden muss
-            if messhandler.schnelles_messen:
-                if (now - messhandler.startzeit_schnelles_messen).total_seconds() > DAUER_SCHNELLINTERVALL:
-                    messhandler.off_schnelles_messintervall()
-            else:
-                telegram_bot.get_updates()
+    zeitpunkt_daten_gesendet = datetime.datetime(1970, 1, 1)
+    start_messzeitpunkt = datetime.datetime(1970, 1, 1)
+
+    while True:
+        now = datetime.datetime.now()
+        now = now.replace(microsecond=0)
+
+        # Prüfen ob schnelles Messen aktiv ist und ob dies wieder auf Standard zurück gesetzt werden muss
+        if messhandler.schnelles_messen:
+            if (now - messhandler.startzeit_schnelles_messen).total_seconds() > \
+                    CONFIG["mess_cfg"]["dauer_schnelles_messintervall"]:
+                messhandler.off_schnelles_messintervall()
+
+        if (now - start_messzeitpunkt).total_seconds() > messhandler.pausenzeit:
 
             # Prüfe welche Messwerte auszulesen sind
-            messauftrag = create_auszulesende_messregister(messregister, now)
+            messauftrag = messhandler.erstelle_auszulesende_messregister()
 
             # Messauftrag abarbeiten und Zeitpunk ergänzen
             if messauftrag:
-                start_messen = datetime.datetime.now()
+                start_messzeitpunkt = datetime.datetime.now()
                 messwerte = smartmeter.read_input_values(messauftrag)
-                LOGGER.info("Messdauer: {}".format(datetime.datetime.now() - start_messen))
+                LOGGER.info("Messdauer: {}".format(datetime.datetime.now() - start_messzeitpunkt))
                 messwerte["ts"] = now
                 messhandler.add_messwerte(messwerte)
-                set_messzeitpunkt(messregister, now, messauftrag)
+
+            if not messhandler.schnelles_messen:
+                messhandler.reduziere_durchlauf_anzahl()
+                messhandler.durchlauf_zuruecksetzen(messauftrag)
+                if telegram_bot is not None:
+                    telegram_bot.get_updates()
 
             # Schreibe die Messdaten in die Datenbank nach eingestellten Intervall
             if (now - zeitpunkt_daten_gesendet).total_seconds() > messhandler.intervall_daten_senden:
                 start_schreiben = datetime.datetime.now()
-                messhandler.write_messwerte(pg_handler)
+                messhandler.schreibe_messwerte(datenbankschnittstelle)
                 LOGGER.info("DB Dauer schreiben: {}".format(datetime.datetime.now() - start_schreiben))
                 zeitpunkt_daten_gesendet = now
             LOGGER.info("Durchlaufdauer: {}".format(datetime.datetime.now() - now))
-            time.sleep(0.5)
+        time.sleep(0.2)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,118 @@
+[modbus]
+serial_if="/dev/ttyUSB0"
+serial_if_baud=19200
+serial_if_byte=8
+serial_if_par="E"
+serial_if_stop=1
+slave_addr=1
+
+
+[db]
+db = "<db_adapter>"  # "postgresql" | "mysql" | "sqlite" | "postgrest"
+
+    [db.postgresql]
+    database = "<db>"
+    user = "<user>"
+    password = "<pw>"
+    host = "<host>"
+    port = 0
+
+    [db.mysql]
+    database = "<db>"
+    user = "<user>"
+    password = "<pw>"
+    host = "<host>"
+    port = 0
+
+    [db.sqlite]
+    database = ":memory:"  # Pfad zu Datenbankdatei oder :memory:
+
+    [db.postgrest]
+    url = "<url>"
+    user = "<user>"
+    token = "<token>"
+    table = "<table>"
+
+
+[telegram_bot]
+token = "<telegrambot_token>"  # Token oder false, false ohne " " schreiben
+
+
+[mess_cfg]
+messintervall = 10  # in Sekunden
+schnelles_messintervall = 1  # in Sekunden
+dauer_schnelles_messintervall = 30 # in Sekunden
+intervall_daten_senden = 30 # in Sekunden
+
+
+# Nach dem wievielten Durchläuf der jeweilige Wert ausgelesen werden soll
+# Ausschalten mit false
+[durchlaufintervall]
+Spannung_L1= 1
+Spannung_L2= 1
+Spannung_L3= 1
+Strom_L1= 1
+Strom_L2= 1
+Strom_L3= 1
+Wirkleistung_L1= 1
+Wirkleistung_L2= 1
+Wirkleistung_L3= 1
+Scheinleistung_L1= 1
+Scheinleistung_L2= 1
+Scheinleistung_L3= 1
+Blindleistung_L1= 1
+Blindleistung_L2= 1
+Blindleistung_L3= 1
+Leistungsfaktor_L1= 1
+Leistungsfaktor_L2= 1
+Leistungsfaktor_L3= 1
+Phasenwinkel_L1= 1
+Phasenwinkel_L2= 1
+Phasenwinkel_L3= 1
+Durchschnittliche_Spannung_zu_N= 5
+Durchschnittlicher_Strom_zu_N= 5
+aktueller_Gesamtstrom= 1
+aktuelle_Gesamtwirkleistung= 1
+aktuelle_Gesamtscheinleistung= 1
+aktuelle_Gesamtblindleistung= 1
+aktueller_Gesamtleistungsfaktor= 1
+aktueller_Gesamtphasenwinkel= 1
+Frequenz= 1
+Import_Wh_seit_reset= 5
+Export_Wh_seit_reset= 5
+Import_VArh_seit_reset= 5
+Export_VArh_seit_reset= 5
+VAh_seit_reset= 5
+Ah_seit_reset= 5
+Gesamtwirkleistung= false
+Max_Gesamtwirkleistung= 5
+Gesamtscheinleistung= false
+Max_Gesamtscheinleistung= 5
+Gesamtstrom_Neutralleiter= false
+Max_Strom_Neutralleiter= 5
+Spannung_L1_L2= 1
+Spannung_L2_L3= 1
+Spannung_L3_L1= 1
+Durchschnittsspannung_L_L= 1
+Strom_Neutralleiter= 1
+THD_Spannung_L1= 1
+THD_Spannung_L2= 1
+THD_Spannung_L3= 1
+THD_Strom_L1= 1
+THD_Strom_L2= 1
+THD_Strom_L3= 1
+THD_Durchschnittliche_Spannung_zu_N= 1
+THD_Durchschnittlicher_Strom_zu_N= 1
+Gesamtsystemleistungsfaktor= 1
+Strom_L1_demand= false
+Strom_L2_demand= false
+Strom_L3_demand= false
+Max_Strom_L1_demand= false
+Max_Strom_L2_demand= false
+Max_Strom_L3_demand= false
+THD_Spannung_L1_L2= 1
+THD_Spannung_L2_L3= 1
+THD_Spannung_L3_L1= 1
+THD_Durchschnittliche_Spannung_zu_L_L= 1
+Total_kwh= 5
+Total_kvarh= 5
