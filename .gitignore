@@ -128,3 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Smartmeter Konfigurationsfile
+smartmeter_cfg.toml
