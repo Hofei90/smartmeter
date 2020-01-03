@@ -2,7 +2,7 @@
 
 ## Ziel des Projektes:
 
-Stromzähler/Smartmeter via ModBus und Raspberry Pi auslesen, die Werte in eine Datenbank speichern und mit Grafana visualisieren
+Stromzähler/Smartmeter via ModBus und Raspberry Pi auslesen, die Werte in einer Datenbank speichern und mit Grafana visualisieren
 
 # Vorbereitungen
 
@@ -12,10 +12,11 @@ Stromzähler/Smartmeter via ModBus und Raspberry Pi auslesen, die Werte in eine 
 SDM530 von bg-etech](http://bg-etech.de/bgshop/product_info.php/drehstromzaehler-sdm530-modbus-p-461)
 * Ebenso möglich ist der Typ SDM230 (hier wurde aber die Klasse in der Software noch nicht geprüft) 
 oder ähnliche Stromzähler mit ModBus Schnittstelle
-Raspberry Pi mit Zubehör
-* USB ModBus Adapter: z.B hier
-Gibts auch billiger, aber da war mir die Wartezeit im Verhältnis zum Preis zu hoch
-geschirmtes Buskabel lt. Anleitung vom Stromzähler
+* Raspberry Pi mit Zubehör
+* USB ModBus Adapter: z.B [hier](https://www.ebay.de/itm/RS485-Konverter-Bus-Adapter-Seriell-USB-RS-485-Schnittstelle-Modbus-Raspberry-Pi/252784174363?ssPageName=STRK%3AMEBIDX%3AIT&_trksid=p2060353.m2749.l2649)
+  
+  Gibts auch billiger, aber da war mir die Wartezeit im Verhältnis zum Preis zu hoch
+* geschirmtes Buskabel (lt. Anleitung vom Stromzähler)
 * 2x 120Ohm 1/4Watt Abschlusswiderstand
 
 **Einbau des Stromzählers nur durch Elektrofachpersonal!
@@ -35,7 +36,7 @@ Direkte Verbindung zu
 Für PostgreSQL gibt es noch eine weitere Möglichkeit der Datenübertragung:
 * [postgrest](https://postgrest.org/en/v6.0/)
 
-Postgrest ermöglicht die Datenübertragung über eine Webapi (muss vom Server natürlich bereitgestellt werden)
+Postgrest ermöglicht die Datenübertragung über eine Web-API (muss vom Server natürlich bereitgestellt werden)
 
 ### Benötigte Python Module
 
