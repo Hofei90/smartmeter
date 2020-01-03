@@ -58,8 +58,8 @@ git submodule init && git submodule update
 ```
 
 ### Telegram (Optional)
-Ist der Telegrambot nicht erwünscht, so muss in der Konfigurationsdatei `false` eingetragen werden
-Aktuell ist es nur möglich, mit dem Bot das Messintervall zu verkürzen
+Ist der Telegrambot nicht erwünscht, so muss in der Konfigurationsdatei `false` eingetragen werden.
+Aktuell ist es nur möglich, mit dem Bot das Messintervall zu verkürzen.
 
 
 ## Programm einrichten
