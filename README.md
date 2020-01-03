@@ -1,12 +1,20 @@
 # Smartmeter
 
-## Ziel des Projektes:
+## Ziel des Projektes
 
 Stromzähler/Smartmeter via ModBus und Raspberry Pi auslesen, die Werte in einer Datenbank speichern und mit Grafana visualisieren
 
-# Vorbereitungen
+## Übersicht
 
-## Benötigte Hardware
+* `EletricMeter.py`: enthält die Klassen für die Stromzähler
+* `smartmeter.py`: Ausführbares Skript (Hauptskript)
+* `smartmeter_telegrambot.py`: Enthält den Telegrambot
+* `telegram_bot_api.py`: API für den Telegrambot
+
+## Vorbereitungen
+
+### Benötigte Hardware
+
 
 * Verwendeter Stromzähler: [
 SDM530 von bg-etech](http://bg-etech.de/bgshop/product_info.php/drehstromzaehler-sdm530-modbus-p-461)
@@ -16,18 +24,20 @@ oder ähnliche Stromzähler mit ModBus Schnittstelle
 * USB ModBus Adapter: z.B [hier](https://www.ebay.de/itm/RS485-Konverter-Bus-Adapter-Seriell-USB-RS-485-Schnittstelle-Modbus-Raspberry-Pi/252784174363?ssPageName=STRK%3AMEBIDX%3AIT&_trksid=p2060353.m2749.l2649)
   
   Gibts auch billiger, aber da war mir die Wartezeit im Verhältnis zum Preis zu hoch
+  
 * geschirmtes Buskabel (lt. Anleitung vom Stromzähler)
 * 2x 120Ohm 1/4Watt Abschlusswiderstand
 
 **Einbau des Stromzählers nur durch Elektrofachpersonal!
 Angaben ohne Gewähr! Besser nochmals nach Anleitung prüfen**
 
-## Benötigte Software
+### Benötigte Software
 
 * Python 3.7 oder höher
 * Grafana zur Visualisierung
 
-### Unterstützte Datenbanken
+
+#### Unterstützte Datenbanken
 Direkte Verbindung zu
 * sqlite3
 * mySQL
@@ -38,7 +48,8 @@ Für PostgreSQL gibt es noch eine weitere Möglichkeit der Datenübertragung:
 
 Postgrest ermöglicht die Datenübertragung über eine Web-API (muss vom Server natürlich bereitgestellt werden)
 
-### Benötigte Python Module
+
+#### Benötigte Python Module
 
 * Toml
 * Peewee
@@ -73,21 +84,17 @@ cp smartmeter_cfg_vorlage.toml smartmeter_cfg.toml
 Anschließend die `smartmeter_cfg.toml` anpassen.
 Konfigurationsdatei muss im selben Ordner wie die Skripte mit dem Namen `smartmeter_cfg.toml` gespeichert werden
 
-
 ## Inbetriebnahme
 
-### Erstmaliger Test:
+### Erstmaliger Test
 
-`python3 smartmeter.py` ausführen
+```console
+python3 smartmeter.py
+```
 
-Wenn dieser Erfolgreich verläuft:
+Wenn dies erfolgreich verläuft, mit dem folgenden Abschnitt fortfahren.
 
-
-### Service Unit erstellen
-
-Ausführung erfordert Rootrechte
-
-`nano /etc/systemd/system/smartmeter.service`
+`/etc/systemd/system/smartmeter.service` mit folgendem Inhalt erstellen:
 
 ```code
 # Pfad zum speichern: /etc/systemd/system/smartmeter.service
@@ -105,13 +112,20 @@ User=pi
 WantedBy=multi-user.target
 ```
 
-`systemctl start smartmeter.service`
+Systemd-Unit starten:
+
+```console
+systemctl start smartmeter.service
+```
 
 Kontrolle ob Skript nun wieder aktiv ist, wenn ja automtische Ausführung anlegen:
 
-`systemctl enable smartmeter.service`
+```console
+systemctl enable smartmeter.service
+```
 
 ## Grafana
 
-Die Visualisierung findet in Grafana statt, auf nähere Ausführungen wird hier jedoch verzichtet, natürlich können die
+Die Visualisierung findet in Grafana statt, auf nähere Ausführungen wird hier jedoch verzichtet, natürlich können die 
 Messwerte auch mit anderen Tools visualsiert werden.
+

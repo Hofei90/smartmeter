@@ -1,0 +1,9 @@
+cryptography
+minimalmodbus==0.7
+paramiko
+psycopg2-binary
+serial
+SQLAlchemy
+sshtunnel
+systemd-python
+toml
