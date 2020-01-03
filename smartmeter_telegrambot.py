@@ -1,11 +1,11 @@
-import telegram_bot_api as api
+import telegram_api.telegram_bot_api as api
 import subprocess
 import shlex
 
 
 class SmartmeterBot:
     def __init__(self, token, logger):
-        self.bot = api.bot(token)
+        self.bot = api.Bot(token)
         self.logger = logger
         self.offset = 0
 
@@ -14,7 +14,7 @@ class SmartmeterBot:
         Hole neue Nachrichten vom Telegramserver ab und quittiere diese
         :return:
         """
-        self.bot.getUpdates(self.offset)
+        self.bot.get_updates(self.offset)
         self.logger.debug(self.bot.result)
         # Wenn das Update erfolgreich ist, das Ergebnis vom Objekt in lokale Variable übertragen und auswerten
         if self.bot.result["ok"]:
@@ -31,8 +31,8 @@ class SmartmeterBot:
             else:
                 self.offset = 0
         else:
-            self.logger.info("Abruf fehlgeschlagen")
-        self.bot.getUpdates(self.offset)
+            self.logger.info("Telegram Abruf fehlgeschlagen")
+        self.bot.get_updates(self.offset)
 
 
 def nachrichten_handler(nachricht, bot):
@@ -54,7 +54,7 @@ def bot_command(nachricht, bot, telegramid):
         pass
     elif kommando == "/schnelles_messintervall":
         schnelles_messintervall()
-        bot.sendMessage(telegramid, "Intervall verkürzt")
+        bot.send_message(telegramid, "Intervall verkürzt")
 
 
 def schnelles_messintervall():

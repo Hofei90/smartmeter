@@ -8,7 +8,7 @@ slave_addr=1
 
 
 [db]
-db = "<db>"         # "postgresql" | "mysql" | "sqlite" | "postgrest"
+db = "<db_adapter>"  # "postgresql" | "mysql" | "sqlite" | "postgrest"
 
     [db.postgresql]
     database = "<db>"
@@ -25,24 +25,29 @@ db = "<db>"         # "postgresql" | "mysql" | "sqlite" | "postgrest"
     port = 0
 
     [db.sqlite]
-    database = ":memory:"  # Path to database file or :memory:
+    database = ":memory:"  # Pfad zu Datenbankdatei oder :memory:
 
     [db.postgrest]
     url = "<url>"
+    user = "<user>"
     token = "<token>"
     table = "<table>"
 
 
 [telegram_bot]
-token = "telegramtoken"
+token = "<telegrambot_token>"  # Token oder false, false ohne " " schreiben
 
-# Nach wie vielen Durchläufen der jeweilige Wert ausgelesen werden soll
+
 [mess_cfg]
-messintervall = 0  # in Sekunden
-schnelles_messintervall = 0  # in Sekunden
-dauer_schnelles_messintervall = 0 # in Sekunden
+messintervall = 10  # in Sekunden
+schnelles_messintervall = 1  # in Sekunden
+dauer_schnelles_messintervall = 30 # in Sekunden
+intervall_daten_senden = 30 # in Sekunden
 
-[[durchlaufintervall]]
+
+# Nach dem wievielten Durchläuf der jeweilige Wert ausgelesen werden soll
+# Ausschalten mit false
+[durchlaufintervall]
 Spannung_L1= 1
 Spannung_L2= 1
 Spannung_L3= 1
@@ -96,7 +101,7 @@ THD_Spannung_L3= 1
 THD_Strom_L1= 1
 THD_Strom_L2= 1
 THD_Strom_L3= 1
-THD_Durchschnitliche_Spannung_zu_N= 1
+THD_Durchschnittliche_Spannung_zu_N= 1
 THD_Durchschnittlicher_Strom_zu_N= 1
 Gesamtsystemleistungsfaktor= 1
 Strom_L1_demand= false

@@ -1,0 +1,3 @@
+[submodule "telegram_api"]
+	path = telegram_api
+	url = https://github.com/Hofei90/telegram_api.git
