@@ -5,7 +5,6 @@ import time
 import traceback
 from copy import deepcopy
 
-import psycopg2
 import toml
 from sshtunnel import SSHTunnelForwarder
 
@@ -13,7 +12,7 @@ import electric_meter
 import setup_logging
 from smartmeter_telegrambot import SmartmeterBot
 
-CONFIGDATEI = "smartmeter_cfg.toml"
+CONFIGDATEI = "smartmeter_cfg_vorlage.toml"
 DEMANDDATEI = "demand_cfg.toml"
 FEHLERDATEI = "fehler_smartmeter.log"
 SKRIPTPFAD = os.path.abspath(os.path.dirname(__file__))
@@ -21,7 +20,7 @@ SKRIPTPFAD = os.path.abspath(os.path.dirname(__file__))
 
 def load_config():
     """
-    Lädt die Konfiguration aus dem smartmeter_cfg.toml File
+    Lädt die Konfiguration aus dem smartmeter_cfg_vorlage.toml File
     :return:
     """
     configfile = os.path.join(SKRIPTPFAD, CONFIGDATEI)
