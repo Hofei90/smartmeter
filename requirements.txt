@@ -1,9 +1,10 @@
-cryptography
+certifi
+chardet
+idna
 minimalmodbus==0.7
-paramiko
-psycopg2-binary
-serial
-SQLAlchemy
-sshtunnel
-systemd-python
+peewee
+pyserial
+requests
 toml
+urllib3
+systemd-python
