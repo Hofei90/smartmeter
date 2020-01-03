@@ -9,74 +9,74 @@ from dataclasses_json import dataclass_json
 @dataclass
 class Smartmeter:
     ts = datetime.datetime
-    Spannung_L1: float
-    Spannung_L2: float
-    Spannung_L3: float
-    Strom_L1: float
-    Strom_L2: float
-    Strom_L3: float
-    Wirkleistung_L1: float
-    Wirkleistung_L2: float
-    Wirkleistung_L3: float
-    Scheinleistung_L1: float
-    Scheinleistung_L2: float
-    Scheinleistung_L3: float
-    Blindleistung_L1: float
-    Blindleistung_L2: float
-    Blindleistung_L3: float
-    Leistungsfaktor_L1: float
-    Leistungsfaktor_L2: float
-    Leistungsfaktor_L3: float
-    Phasenwinkel_L1: float
-    Phasenwinkel_L2: float
-    Phasenwinkel_L3: float
-    Durchschnittliche_Spannung_zu_N: float
-    Durchschnittlicher_Strom_zu_N: float
-    aktueller_Gesamtstrom: float
-    aktuelle_Gesamtwirkleistung: float
-    aktuelle_Gesamtscheinleistung: float
-    aktuelle_Gesamtblindleistung: float
-    aktueller_Gesamtleistungsfaktor: float
-    aktueller_Gesamtphasenwinkel: float
-    Frequenz: float
-    Import_Wh_seit_reset: float
-    Export_Wh_seit_reset: float
-    Import_VArh_seit_reset: float
-    Export_VArh_seit_reset: float
-    VAh_seit_reset: float
-    Ah_seit_reset: float
-    Gesamtwirkleistung: float
-    Max_Gesamtwirkleistung: float
-    Gesamtscheinleistung: float
-    Max_Gesamtscheinleistung: float
-    Gesamtstrom_Neutralleiter: float
-    Max_Strom_Neutralleiter: float
-    Spannung_L1_L2: float
-    Spannung_L2_L3: float
-    Spannung_L3_L1: float
-    Durchschnittsspannung_L_L: float
-    Strom_Neutralleiter: float
-    THD_Spannung_L1: float
-    THD_Spannung_L2: float
-    THD_Spannung_L3: float
-    THD_Strom_L1: float
-    THD_Strom_L2: float
-    THD_Strom_L3: float
-    THD_Durchschnittliche_Spannung_zu_N: float
-    THD_Durchschnittlicher_Strom_zu_N: float
-    Gesamtsystemleistungsfaktor: float
-    Strom_L1_demand: float
-    Strom_L2_demand: float
-    Strom_L3_demand: float
-    Max_Strom_L1_demand: float
-    Max_Strom_L2_demand: float
-    Max_Strom_L3_demand: float
-    THD_Spannung_L1_L2: float
-    THD_Spannung_L2_L3: float
-    THD_Spannung_L3_L1: float
-    THD_Durchschnittliche_Spannung_zu_L_L: float
-    Total_kwh: float
-    Total_kvarh: float
+    Spannung_L1: float = None
+    Spannung_L2: float = None
+    Spannung_L3: float = None
+    Strom_L1: float = None
+    Strom_L2: float = None
+    Strom_L3: float = None
+    Wirkleistung_L1: float = None
+    Wirkleistung_L2: float = None
+    Wirkleistung_L3: float = None
+    Scheinleistung_L1: float = None
+    Scheinleistung_L2: float = None
+    Scheinleistung_L3: float = None
+    Blindleistung_L1: float = None
+    Blindleistung_L2: float = None
+    Blindleistung_L3: float = None
+    Leistungsfaktor_L1: float = None
+    Leistungsfaktor_L2: float = None
+    Leistungsfaktor_L3: float = None
+    Phasenwinkel_L1: float = None
+    Phasenwinkel_L2: float = None
+    Phasenwinkel_L3: float = None
+    Durchschnittliche_Spannung_zu_N: float = None
+    Durchschnittlicher_Strom_zu_N: float = None
+    aktueller_Gesamtstrom: float = None
+    aktuelle_Gesamtwirkleistung: float = None
+    aktuelle_Gesamtscheinleistung: float = None
+    aktuelle_Gesamtblindleistung: float = None
+    aktueller_Gesamtleistungsfaktor: float = None
+    aktueller_Gesamtphasenwinkel: float = None
+    Frequenz: float = None
+    Import_Wh_seit_reset: float = None
+    Export_Wh_seit_reset: float = None
+    Import_VArh_seit_reset: float = None
+    Export_VArh_seit_reset: float = None
+    VAh_seit_reset: float = None
+    Ah_seit_reset: float = None
+    Gesamtwirkleistung: float = None
+    Max_Gesamtwirkleistung: float = None
+    Gesamtscheinleistung: float = None
+    Max_Gesamtscheinleistung: float = None
+    Gesamtstrom_Neutralleiter: float = None
+    Max_Strom_Neutralleiter: float = None
+    Spannung_L1_L2: float = None
+    Spannung_L2_L3: float = None
+    Spannung_L3_L1: float = None
+    Durchschnittsspannung_L_L: float = None
+    Strom_Neutralleiter: float = None
+    THD_Spannung_L1: float = None
+    THD_Spannung_L2: float = None
+    THD_Spannung_L3: float = None
+    THD_Strom_L1: float = None
+    THD_Strom_L2: float = None
+    THD_Strom_L3: float = None
+    THD_Durchschnittliche_Spannung_zu_N: float = None
+    THD_Durchschnittlicher_Strom_zu_N: float = None
+    Gesamtsystemleistungsfaktor: float = None
+    Strom_L1_demand: float = None
+    Strom_L2_demand: float = None
+    Strom_L3_demand: float = None
+    Max_Strom_L1_demand: float = None
+    Max_Strom_L2_demand: float = None
+    Max_Strom_L3_demand: float = None
+    THD_Spannung_L1_L2: float = None
+    THD_Spannung_L2_L3: float = None
+    THD_Spannung_L3_L1: float = None
+    THD_Durchschnittliche_Spannung_zu_L_L: float = None
+    Total_kwh: float = None
+    Total_kvarh: float = None
 
 
 def sende_daten(url, headers, data):
