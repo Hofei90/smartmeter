@@ -51,7 +51,7 @@ Apt Installation erfordert ggf. root Rechte! Paketquellen zuvor updaten. (apt up
 
 ```console
 apt install build-essential libssl-dev libffi-dev python3-dev libpq5 git
-pip3 install --user requirements.txt
+pip3 install --user -r requirements.txt
 git clone https://github.com/Hofei90/smartmeter.git /home/pi/smartmeter
 cd /home/pi/smartmeter
 git submodule init && git submodule update
