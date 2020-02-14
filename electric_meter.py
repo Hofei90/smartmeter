@@ -114,33 +114,33 @@ class SDM230(ModBusRTU):
     def __init__(self, logger, serial_if, serial_if_baud, serial_if_byte, serial_if_par, serial_if_stop, slave_addr):
         super().__init__(logger, serial_if, serial_if_baud, serial_if_byte, serial_if_par, serial_if_stop, slave_addr)
         # Konfiguration der Input Register nach Datenblatt
-        self.input_register = {"Voltage": {
+        self.input_register = {"Spannung_L1": {
             "port": 0, "digits": 2, "Unit": "V", "use": True},
-            "Ampere":
+            "Strom_L1":
                 {"port": 6, "digits": 2, "Unit": "A", "use": True},
-            "Wirkleistung":
+            "Wirkleistung_L1":
                 {"port": 12, "digits": 2, "Unit": "W", "use": True},
-            "Scheinleistung":
+            "Scheinleistung_L1":
                 {"port": 18, "digits": 2, "Unit": "VA", "use": True},
-            "Blindleistung":
+            "Blindleistung_L1":
                 {"port": 24, "digits": 2, "Unit": "VAr", "use": True},
-            "Leistungsfaktor":
+            "Leistungsfaktor_L1":
                 {"port": 30, "digits": 2, "Unit": "", "use": True},
-            "Phasenwinkel":
+            "Phasenwinkel_L1":
                 {"port": 36, "digits": 2, "Unit": "Grad", "use": True},
             "Frequenz":
                 {"port": 70, "digits": 2, "Unit": "Hz", "use": True},
-            "ImportActiveEnergy":
+            "Import_Wh_seit_reset":
                 {"port": 72, "digits": 2, "Unit": "kWh", "use": True},
-            "ExportActiveEnergy":
+            "Export_Wh_seit_reset":
                 {"port": 74, "digits": 2, "Unit": "kWh", "use": True},
-            "ImportReactEnergy":
+            "Import_VArh_seit_reset":
                 {"port": 76, "digits": 2, "Unit": "kVArh", "use": False},
-            "ExportReactEnergy":
+            "Export_VArh_seit_reset":
                 {"port": 78, "digits": 2, "Unit": "kVArh", "use": False},
-            "TotalSystemPowerDemand":
+            "Gesamtwirkleistung":
                 {"port": 84, "digits": 2, "Unit": "W", "use": True},
-            "MaxTotSystemPowerDemand":
+            "Max_Gesamtwirkleistung":
                 {"port": 86, "digits": 2, "Unit": "W", "use": True},
             "CurrentSystemPositivePowerDemand":
                 {"port": 88, "digits": 2, "Unit": "W", "use": True},
@@ -148,20 +148,14 @@ class SDM230(ModBusRTU):
                 {"port": 90, "digits": 2, "Unit": "W", "use": True},
             "CurrentSystemReversePowerDemand":
                 {"port": 92, "digits": 2, "Unit": "W", "use": True},
-            "MaximumSystemReversePowerDemand":
-                {"port": 258, "digits": 2, "Unit": "W", "use": True},
-            "CurrentDemand":
+            "Strom_L1_demand":
                 {"port": 258, "digits": 2, "Unit": "A", "use": True},
-            "MaximumCurrentDemand":
+            "Max_Strom_L1_demand":
                 {"port": 264, "digits": 2, "Unit": "A", "use": True},
-            "TotalActiveEnergy":
+            "Total_kwh":
                 {"port": 342, "digits": 2, "Unit": "kWh", "use": True},
-            "TotalReactiveEnergy":
-                {"port": 344, "digits": 2, "Unit": "kVArh", "use": True},
-            "CurrentResettableTotalActiveEnergy":
-                {"port": 384, "digits": 2, "Unit": "kWh", "use": False},
-            "CurrentResettableTotalReactiveEnergy":
-                {"port": 386, "digits": 2, "Unit": "kVArh", "use": False}
+            "Total_kvarh":
+                {"port": 344, "digits": 2, "Unit": "kVArh", "use": True}
         }
 
     def read_input_values(self, input_register_keys=None):
@@ -364,7 +358,8 @@ class SDM530(ModBusRTU):
             "Total_kwh": {
                 "port": 342, "digits": 2, "Unit": "kwh", "use": True},
             "Total_kvarh": {
-                "port": 344, "digits": 2, "Unit": "kvarh", "use": True}}
+                "port": 344, "digits": 2, "Unit": "kvarh", "use": True}
+        }
 
         # Konfiguration der Holding Register nach Datenblatt
         # TODO: Holding Register schreiben
