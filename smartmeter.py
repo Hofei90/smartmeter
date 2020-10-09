@@ -165,6 +165,8 @@ def main():
     zeitpunkt_daten_gesendet = datetime.datetime(1970, 1, 1)
     start_messzeitpunkt = datetime.datetime(1970, 1, 1)
 
+    LOGGER.info("Initialisierung abgeschlossen - Start Messungen")
+
     while True:
         now = datetime.datetime.now()
         now = now.replace(microsecond=0)
@@ -184,7 +186,7 @@ def main():
             if messauftrag:
                 start_messzeitpunkt = datetime.datetime.now()
                 messwerte = smartmeter.read_input_values(messauftrag)
-                LOGGER.info("Messdauer: {}".format(datetime.datetime.now() - start_messzeitpunkt))
+                LOGGER.debug("Messdauer: {}".format(datetime.datetime.now() - start_messzeitpunkt))
                 messwerte["ts"] = now
                 messhandler.add_messwerte(messwerte)
 
@@ -198,9 +200,9 @@ def main():
             if (now - zeitpunkt_daten_gesendet).total_seconds() > messhandler.intervall_daten_senden:
                 start_schreiben = datetime.datetime.now()
                 messhandler.schreibe_messwerte(datenbankschnittstelle)
-                LOGGER.info("DB Dauer schreiben: {}".format(datetime.datetime.now() - start_schreiben))
+                LOGGER.debug("DB Dauer schreiben: {}".format(datetime.datetime.now() - start_schreiben))
                 zeitpunkt_daten_gesendet = now
-            LOGGER.info("Durchlaufdauer: {}".format(datetime.datetime.now() - now))
+            LOGGER.debug("Durchlaufdauer: {}".format(datetime.datetime.now() - now))
         time.sleep(0.2)
 
 

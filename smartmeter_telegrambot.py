@@ -31,7 +31,7 @@ class SmartmeterBot:
             else:
                 self.offset = 0
         else:
-            self.logger.info("Telegram Abruf fehlgeschlagen")
+            self.logger.warning("Telegram Abruf fehlgeschlagen")
         self.bot.get_updates(self.offset)
 
 
