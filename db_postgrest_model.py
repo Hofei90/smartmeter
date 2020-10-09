@@ -5,7 +5,7 @@ from copy import deepcopy
 import requests
 
 
-def sende_daten(url, headers, daten, none_daten):
+def sende_daten(url, headers, daten, none_daten, logger):
     for datensatz in daten:
         datensatz["ts"] = datensatz["ts"].strftime("%Y-%m-%d %H:%M:%S")
     daten_konvertiert = []
@@ -16,7 +16,11 @@ def sende_daten(url, headers, daten, none_daten):
         daten_konvertiert.append(datensatz_konvertiert)
 
     json_daten = json.dumps(daten_konvertiert)
-    print(json_daten)
+    logger.debug(json_daten)
     r = requests.post(url, headers=headers, data=json_daten)
-    print(r.status_code)
-    print(r.text)
+    if r.status_code == 200 or r.status_code == 201:
+        logger.debug(r.status_code)
+        logger.debug(r.text)
+    else:
+        logger.error(r.status_code)
+        logger.error(r.text)

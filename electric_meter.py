@@ -42,7 +42,6 @@ class ModBusRTU:
             self.instrument.serial.stopbits = serial_if_stop
             self.instrument.serial.timeout = 0.500  # seconds max to wait for answer
         except serial.serialutil.SerialException as e:
-            print("Initialisation returns an error: {}".format(e))
             self.log.error("Initialisation returns an error: {}".format(e))
 
     def read_data_point_from_meter(self, func_code=None, reg_addr=None, number_of_reg=None):

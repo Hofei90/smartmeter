@@ -109,7 +109,7 @@ class Datenbankschnittstelle:
 
     def insert_many(self, daten):
         if self.db_adapter == "postgrest":
-            db_postgrest.sende_daten(self.url, self.headers, daten, self.none_messdaten)
+            db_postgrest.sende_daten(self.url, self.headers, daten, self.none_messdaten, LOGGER)
         else:
             db.insert_many(daten)
 
