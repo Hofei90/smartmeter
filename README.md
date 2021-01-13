@@ -9,7 +9,7 @@ Stromzähler/Smartmeter via ModBus und Raspberry Pi auslesen, die Werte in einer
 ## Benötigte Hardware
 
 * Verwendeter Stromzähler: [
-SDM530 von bg-etech](http://bg-etech.de/bgshop/product_info.php/drehstromzaehler-sdm530-modbus-p-461)
+SDM530 von bg-etech](https://stromzähler.eu/stromzaehler/drehstromzaehler/fuer-hutschiene-ungeeicht/22/sdm530modbus-multifunktionsmessgeraet-fuer-din-hutschiene?c=93)
 * Ebenso möglich ist der Typ SDM230 (hier wurde aber die Klasse in der Software noch nicht geprüft) 
 oder ähnliche Stromzähler mit ModBus Schnittstelle
 * Raspberry Pi mit Zubehör
