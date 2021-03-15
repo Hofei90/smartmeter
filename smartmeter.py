@@ -4,6 +4,7 @@ import signal
 import time
 import traceback
 from copy import deepcopy
+from sys import exit
 
 import toml
 
@@ -121,15 +122,34 @@ class Datenbankschnittstelle:
         return none_daten
 
 
-def erzeuge_messregister():
+def schreibe_config(config, configfile):
+    with open(configfile) as conffile:
+        conffile.write(toml.dumps(config))
+    LOGGER.info("Durchlaufintervall in Config aktualisiert \n Programm wird beendet. Bitte neu starten")
+    exit(0)
+
+
+def erzeuge_durchlaufintervall(config, device):
+    register = device.get_input_keys()
+    durchlaufintervall = {}
+    for key in register:
+        durchlaufintervall[key] = 1
+    config["durchlaufintervall"] = durchlaufintervall
+    schreibe_config(config, CONFIGDATEI)
+
+
+def erzeuge_messregister(device):
     """Erzeugt das messregister nach dem Start des Skriptes"""
-    messregister = {}
-    for key, value in CONFIG["durchlaufintervall"].items():
-        if value:
-            messregister[key] = {}
-            messregister[key]["intervall"] = value
-            messregister[key]["verbleibender_durchlauf"] = 0
-    return messregister
+    if "durchlaufintervall" in CONFIG:
+        messregister = {}
+        for key, value in CONFIG["durchlaufintervall"].items():
+            if value:
+                messregister[key] = {}
+                messregister[key]["intervall"] = value
+                messregister[key]["verbleibender_durchlauf"] = 0
+        return messregister
+    else:
+        erzeuge_durchlaufintervall(CONFIG, device)
 
 
 def fehlermeldung_schreiben(fehlermeldung):
@@ -144,9 +164,20 @@ def fehlermeldung_schreiben(fehlermeldung):
 
 
 def main():
-    datenbankschnittstelle = Datenbankschnittstelle(CONFIG["db"]["db"])
-    messregister = erzeuge_messregister()
+    device = electric_meter.get_device_list().get(CONFIG["mess_cfg"]["device"])
+    smartmeter = device(serial_if=CONFIG["modbus"]["serial_if"],
+                        serial_if_baud=CONFIG["modbus"]["serial_if_baud"],
+                        serial_if_byte=CONFIG["modbus"]["serial_if_byte"],
+                        serial_if_par=CONFIG["modbus"]["serial_if_par"],
+                        serial_if_stop=CONFIG["modbus"]["serial_if_stop"],
+                        slave_addr=CONFIG["modbus"]["slave_addr"],
+                        logger=LOGGER)
+
+    messregister = erzeuge_messregister(device)
     messhandler = MessHandler(messregister)
+
+    datenbankschnittstelle = Datenbankschnittstelle(CONFIG["db"]["db"])
+
     if CONFIG["telegram_bot"]["token"]:
         telegram_bot = SmartmeterBot(CONFIG["telegram_bot"]["token"], LOGGER)
     else:
@@ -154,13 +185,6 @@ def main():
 
     # SIGUSR2 setzt das schnelle Messintervall
     signal.signal(signal.SIGUSR2, messhandler.set_schnelles_messintervall)
-    smartmeter = electric_meter.SDM530(serial_if=CONFIG["modbus"]["serial_if"],
-                                       serial_if_baud=CONFIG["modbus"]["serial_if_baud"],
-                                       serial_if_byte=CONFIG["modbus"]["serial_if_byte"],
-                                       serial_if_par=CONFIG["modbus"]["serial_if_par"],
-                                       serial_if_stop=CONFIG["modbus"]["serial_if_stop"],
-                                       slave_addr=CONFIG["modbus"]["slave_addr"],
-                                       logger=LOGGER)
 
     zeitpunkt_daten_gesendet = datetime.datetime(1970, 1, 1)
     start_messzeitpunkt = datetime.datetime(1970, 1, 1)

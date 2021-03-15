@@ -417,6 +417,15 @@ class SDM530(ModBusRTU):
         return input_register_keys
 
 
+def get_device_list():
+    device_list = {
+        "DDS353B": DDS353B,
+        "SDM230": SDM230,
+        "SDM530": SDM530
+    }
+    return device_list
+
+
 # for test or stand alone work
 if __name__ == '__main__':
     try:
