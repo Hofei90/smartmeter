@@ -123,14 +123,14 @@ class Datenbankschnittstelle:
 
 
 def schreibe_config(config, configfile):
-    with open(configfile) as conffile:
+    with open(configfile, "w") as conffile:
         conffile.write(toml.dumps(config))
     LOGGER.info("Durchlaufintervall in Config aktualisiert \n Programm wird beendet. Bitte neu starten")
     exit(0)
 
 
-def erzeuge_durchlaufintervall(config, device):
-    register = device.get_input_keys()
+def erzeuge_durchlaufintervall(config, smartmeter):
+    register = smartmeter.get_input_keys()
     durchlaufintervall = {}
     for key in register:
         durchlaufintervall[key] = 1
@@ -138,7 +138,7 @@ def erzeuge_durchlaufintervall(config, device):
     schreibe_config(config, CONFIGDATEI)
 
 
-def erzeuge_messregister(device):
+def erzeuge_messregister(smartmeter):
     """Erzeugt das messregister nach dem Start des Skriptes"""
     if "durchlaufintervall" in CONFIG:
         messregister = {}
@@ -149,7 +149,7 @@ def erzeuge_messregister(device):
                 messregister[key]["verbleibender_durchlauf"] = 0
         return messregister
     else:
-        erzeuge_durchlaufintervall(CONFIG, device)
+        erzeuge_durchlaufintervall(CONFIG, smartmeter)
 
 
 def fehlermeldung_schreiben(fehlermeldung):
@@ -173,7 +173,7 @@ def main():
                         slave_addr=CONFIG["modbus"]["slave_addr"],
                         logger=LOGGER)
 
-    messregister = erzeuge_messregister(device)
+    messregister = erzeuge_messregister(smartmeter)
     messhandler = MessHandler(messregister)
 
     datenbankschnittstelle = Datenbankschnittstelle(CONFIG["db"]["db"])
