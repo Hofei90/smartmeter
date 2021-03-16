@@ -123,18 +123,23 @@ class Datenbankschnittstelle:
 
 
 def schreibe_config(config, configfile):
-    with open(configfile, "w") as conffile:
-        conffile.write(toml.dumps(config))
+    with open(configfile, "a", encoding="UTF-8") as file:
+        file.write(f"# Nach dem wievielten Durchläuf der jeweilige Wert ausgelesen werden soll \n"
+                   f"# Ausschalten mit false\n"
+                   f"# Einträge werden automatisch nach dem ersten Start erstellt, Config anschließend nochmal prüfen\n"
+                   f"{toml.dumps(config)}")
     LOGGER.info("Durchlaufintervall in Config aktualisiert \n Programm wird beendet. Bitte neu starten")
+    global nofailure
+    nofailure = True
     exit(0)
 
 
-def erzeuge_durchlaufintervall(config, smartmeter):
+def erzeuge_durchlaufintervall(smartmeter):
     register = smartmeter.get_input_keys()
     durchlaufintervall = {}
     for key in register:
         durchlaufintervall[key] = 1
-    config["durchlaufintervall"] = durchlaufintervall
+    config = {"durchlaufintervall": durchlaufintervall}
     schreibe_config(config, CONFIGDATEI)
 
 
@@ -149,7 +154,7 @@ def erzeuge_messregister(smartmeter):
                 messregister[key]["verbleibender_durchlauf"] = 0
         return messregister
     else:
-        erzeuge_durchlaufintervall(CONFIG, smartmeter)
+        erzeuge_durchlaufintervall(smartmeter)
 
 
 def fehlermeldung_schreiben(fehlermeldung):
@@ -231,8 +236,10 @@ def main():
 
 
 if __name__ == "__main__":
+    nofailure = False
     try:
         main()
     finally:
-        fehlermeldung_schreiben(traceback.format_exc())
-        LOGGER.exception("Schwerwiegender Fehler aufgetreten")
+        if not nofailure:
+            fehlermeldung_schreiben(traceback.format_exc())
+            LOGGER.exception("Schwerwiegender Fehler aufgetreten")
