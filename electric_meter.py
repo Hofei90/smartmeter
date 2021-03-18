@@ -1,5 +1,6 @@
 #! /usr/bin/python3
 
+from time import sleep
 import serial
 import minimalmodbus
 
@@ -180,6 +181,7 @@ class SDM230(ModBusRTU):
                         except OSError:
                             fehler += 1
                             self.log.error("Kommunikationserror Nr. {}".format(fehler))
+                            sleep(5)
                             if fehler > 5:  # Anzahl der Versuche
                                 raise OSError
                         else:
@@ -387,6 +389,7 @@ class SDM530(ModBusRTU):
                         except OSError:
                             fehler += 1
                             self.log.error("Kommunikationserror Nr. {}".format(fehler))
+                            sleep(5)
                             if fehler > 5:  # Anzahl der Versuche
                                 raise OSError
                         else:
@@ -630,6 +633,7 @@ class SDM630(ModBusRTU):
                         except OSError:
                             fehler += 1
                             self.log.error("Kommunikationserror Nr. {}".format(fehler))
+                            sleep(5)
                             if fehler > 5:  # Anzahl der Versuche
                                 raise OSError
                         else:
