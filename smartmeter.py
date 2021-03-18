@@ -89,7 +89,10 @@ class MessHandler:
 
 
 class Datenbankschnittstelle:
-    def __init__(self, db_adapter):
+    def __init__(self, db_adapter, device):
+        self.db_tables = [db.get_smartmeter_table(device)]
+        self.db_table = self.db_tables[0]
+
         self.db_adapter = db_adapter
         if db_adapter == "postgrest":
             self.headers = {f"Authorization": "{user} {token}".format(user=CONFIG["db"]["postgrest"]["user"],
@@ -106,13 +109,13 @@ class Datenbankschnittstelle:
             db_adapter = CONFIG["db"]["db"]
             db_ = db.init_db(CONFIG["db"][db_adapter]["database"], db_adapter, CONFIG["db"].get(db_adapter))
             db.DB_PROXY.initialize(db_)
-            db.create_tables()
+            db.create_tables(self.db_tables)
 
     def insert_many(self, daten):
         if self.db_adapter == "postgrest":
             db_postgrest.sende_daten(self.url, self.headers, daten, self.none_messdaten, LOGGER)
         else:
-            db.insert_many(daten)
+            db.insert_many(daten, self.db_table)
 
     @staticmethod
     def __none_messdaten_dictionary_erstellen():
@@ -181,7 +184,7 @@ def main():
     messregister = erzeuge_messregister(smartmeter)
     messhandler = MessHandler(messregister)
 
-    datenbankschnittstelle = Datenbankschnittstelle(CONFIG["db"]["db"])
+    datenbankschnittstelle = Datenbankschnittstelle(CONFIG["db"]["db"], CONFIG["mess_cfg"]["device"])
 
     if CONFIG["telegram_bot"]["token"]:
         telegram_bot = SmartmeterBot(CONFIG["telegram_bot"]["token"], LOGGER)

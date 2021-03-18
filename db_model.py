@@ -8,7 +8,37 @@ class BaseModel(peewee.Model):
         database = DB_PROXY
 
 
-class Smartmeter(BaseModel):
+class DDS353B(BaseModel):
+    ts = peewee.DateTimeField(primary_key=True)
+    power = peewee.FloatField(null=True)
+
+
+class SDM230(BaseModel):
+    ts = peewee.DateTimeField(primary_key=True)
+    spannung_l1 = peewee.FloatField(null=True)
+    strom_l1 = peewee.FloatField(null=True)
+    wirkleistung_l1 = peewee.FloatField(null=True)
+    scheinleistung_l1 = peewee.FloatField(null=True)
+    blindleistung_l1 = peewee.FloatField(null=True)
+    leistungsfaktor_l1 = peewee.FloatField(null=True)
+    phasenwinkel_l1 = peewee.FloatField(null=True)
+    frequenz = peewee.FloatField(null=True)
+    import_wh_seit_reset = peewee.FloatField(null=True)
+    export_wh_seit_reset = peewee.FloatField(null=True)
+    import_varh_seit_reset = peewee.FloatField(null=True)
+    export_varh_seit_reset = peewee.FloatField(null=True)
+    gesamtwirkleistung = peewee.FloatField(null=True)
+    max_gesamtwirkleistung = peewee.FloatField(null=True)
+    currentsystempositivepowerdemand = peewee.FloatField(null=True)
+    maximumsystempositivepowerdemand = peewee.FloatField(null=True)
+    currentsystemreversepowerdemand = peewee.FloatField(null=True)
+    strom_l1_demand = peewee.FloatField(null=True)
+    max_strom_l1_demand = peewee.FloatField(null=True)
+    total_kwh = peewee.FloatField(null=True)
+    total_kvarh = peewee.FloatField(null=True)
+
+
+class SDM530(BaseModel):
     ts = peewee.DateTimeField(primary_key=True)
     ah_seit_reset = peewee.FloatField(null=True)
     aktuelle_gesamtblindleistung = peewee.FloatField(null=True)
@@ -80,18 +110,27 @@ class Smartmeter(BaseModel):
     wirkleistung_l3 = peewee.FloatField(null=True)
 
 
-def insert_many(daten):
+def get_smartmeter_table(device):
+    if device == "DDS353B":
+        return DDS353B
+    elif device == "SDM230":
+        return SDM230
+    elif device == "SDM530":
+        return SDM530
+
+
+def insert_many(daten, db_table):
     daten_konvertiert = []
     for datensatz in daten:
         datensatz_konvertiert = {}
         for key, value in datensatz.items():
             datensatz_konvertiert[key.lower()] = value
         daten_konvertiert.append(datensatz_konvertiert)
-    Smartmeter.insert_many(daten_konvertiert).execute()
+    db_table.insert_many(daten_konvertiert).execute()
 
 
-def create_tables():
-    DB_PROXY.create_tables([Smartmeter])
+def create_tables(tables):
+    DB_PROXY.create_tables(tables)
 
 
 def init_db(name, type_="sqlite", config=None):
