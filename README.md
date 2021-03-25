@@ -44,7 +44,7 @@ Postgrest ermöglicht die Datenübertragung über eine Web-API (muss vom Server 
 * Toml
 * Peewee
 * serial
-* minimalmodbus in Version 0.7 (neuer funktioniert nicht!)
+* minimalmodbus
 
 Installation dieser:
 

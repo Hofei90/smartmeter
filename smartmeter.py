@@ -179,6 +179,7 @@ def main():
                         serial_if_par=CONFIG["modbus"]["serial_if_par"],
                         serial_if_stop=CONFIG["modbus"]["serial_if_stop"],
                         slave_addr=CONFIG["modbus"]["slave_addr"],
+                        timeout=CONFIG["modbus"]["timeout"],
                         logger=LOGGER)
 
     messregister = erzeuge_messregister(smartmeter)

@@ -14,25 +14,19 @@ class ModBusRTU:
     # log = None
     data = {}
 
-    def __init__(self, logger, serial_if, serial_if_baud, serial_if_byte, serial_if_par, serial_if_stop, slave_addr):
+    def __init__(self, logger, serial_if, serial_if_baud, serial_if_byte, serial_if_par, serial_if_stop, slave_addr,
+                 timeout):
         """
         Init method of ModBusRTU.
         Here will be the serial modbus adapter connected and initialised.
-
-        @param logger:
-        @param serial_if:
-        @param serial_if_baud:
-        @param serial_if_byte:
-        @param serial_if_par:
-        @param serial_if_stop:
-        @param slave_addr:
         """
 
         self.log = logger
         try:
             s = "Init with: serial_if={}, serial_if_baud={}, serial_if_byte={}, serial_if_par={}, " \
-                "serial_if_stop={}, slave_addr={}".format(serial_if, serial_if_baud, serial_if_byte,
-                                                          serial_if_par, serial_if_stop, slave_addr)
+                "serial_if_stop={}, slave_addr={}, timeout={}".format(serial_if, serial_if_baud, serial_if_byte,
+                                                                      serial_if_par, serial_if_stop, slave_addr,
+                                                                      timeout)
 
             self.log.debug(s)
 
@@ -41,7 +35,7 @@ class ModBusRTU:
             self.instrument.serial.bytesize = serial_if_byte
             self.instrument.serial.parity = serial_if_par
             self.instrument.serial.stopbits = serial_if_stop
-            self.instrument.serial.timeout = 0.500  # seconds max to wait for answer
+            self.instrument.serial.timeout = timeout
         except serial.serialutil.SerialException as e:
             self.log.error("Initialisation returns an error: {}".format(e))
 
@@ -62,7 +56,7 @@ class ModBusRTU:
         if self.instrument is not None:
             try:
                 scale_value_tupel = self.instrument.read_register(functioncode=func_code, registeraddress=reg_addr,
-                                                                  numberOfDecimals=number_of_reg)
+                                                                  number_of_decimals=number_of_reg)
                 self.log.debug("RegAddr='{}', NoOfReg='{}', Result tuple (digit array)='{}'".format(reg_addr,
                                                                                                     number_of_reg,
                                                                                                     scale_value_tupel))
@@ -110,8 +104,10 @@ class SDM230(ModBusRTU):
     Most significant register first (Default).
     The default may be changed if required -See Holding Register "Register Order" parameter.
     """
-    def __init__(self, logger, serial_if, serial_if_baud, serial_if_byte, serial_if_par, serial_if_stop, slave_addr):
-        super().__init__(logger, serial_if, serial_if_baud, serial_if_byte, serial_if_par, serial_if_stop, slave_addr)
+    def __init__(self, logger, serial_if, serial_if_baud, serial_if_byte,
+                 serial_if_par, serial_if_stop, slave_addr, timeout):
+        super().__init__(logger, serial_if, serial_if_baud, serial_if_byte,
+                         serial_if_par, serial_if_stop, slave_addr, timeout)
         # Konfiguration der Input Register nach Datenblatt
         self.input_register = {"Spannung_L1": {
             "port": 0, "digits": 2, "Unit": "V", "use": True},
@@ -177,7 +173,8 @@ class SDM230(ModBusRTU):
                         try:
                             messwert = self.instrument.read_float(functioncode=4,  # fix (!) for this model
                                                                   registeraddress=self.input_register[key]["port"],
-                                                                  numberOfRegisters=self.input_register[key]["digits"])
+                                                                  number_of_registers=self.input_register[key][
+                                                                      "digits"])
                         except OSError:
                             fehler += 1
                             self.log.error("Kommunikationserror Nr. {}".format(fehler))
@@ -190,7 +187,6 @@ class SDM230(ModBusRTU):
                     if messwert is None:
                         self.log.warn("Value '{}' not available".format(key))
                     else:
-                        # TODO: messwertrunden abhängig des Registers machen
                         self.data[key] = round(messwert, 4)
                     self.log.debug("Value '{}' = '{}'".format(key, self.data[key]))
                 else:
@@ -219,8 +215,10 @@ class SDM530(ModBusRTU):
     Most significant register first (Default).
     The default may be changed if required -See Holding Register "Register Order" parameter.
     """
-    def __init__(self, logger, serial_if, serial_if_baud, serial_if_byte, serial_if_par, serial_if_stop, slave_addr):
-        super().__init__(logger, serial_if, serial_if_baud, serial_if_byte, serial_if_par, serial_if_stop, slave_addr)
+    def __init__(self, logger, serial_if, serial_if_baud, serial_if_byte,
+                 serial_if_par, serial_if_stop, slave_addr, timeout):
+        super().__init__(logger, serial_if, serial_if_baud, serial_if_byte,
+                         serial_if_par, serial_if_stop, slave_addr, timeout)
         # Konfiguration der Input Register nach Datenblatt
         self.input_register = {
             "Spannung_L1": {
@@ -385,7 +383,8 @@ class SDM530(ModBusRTU):
                         try:
                             messwert = self.instrument.read_float(functioncode=4,  # fix (!) for this model
                                                                   registeraddress=self.input_register[key]["port"],
-                                                                  numberOfRegisters=self.input_register[key]["digits"])
+                                                                  number_of_registers=self.input_register[key][
+                                                                      "digits"])
                         except OSError:
                             fehler += 1
                             self.log.error("Kommunikationserror Nr. {}".format(fehler))
@@ -398,7 +397,6 @@ class SDM530(ModBusRTU):
                     if messwert is None:
                         self.log.warn("Value '{}' not available".format(key))
                     else:
-                        # TODO: messwertrunden abhängig des Registers machen
                         self.data[key] = round(messwert, 4)
                     self.log.debug("Value '{}' = '{}'".format(key, self.data[key]))
                 else:
@@ -429,8 +427,10 @@ class SDM630(ModBusRTU):
     The default may be changed if required -See Holding Register "Register Order" parameter.
     """
 
-    def __init__(self, logger, serial_if, serial_if_baud, serial_if_byte, serial_if_par, serial_if_stop, slave_addr):
-        super().__init__(logger, serial_if, serial_if_baud, serial_if_byte, serial_if_par, serial_if_stop, slave_addr)
+    def __init__(self, logger, serial_if, serial_if_baud, serial_if_byte,
+                 serial_if_par, serial_if_stop, slave_addr, timeout):
+        super().__init__(logger, serial_if, serial_if_baud, serial_if_byte,
+                         serial_if_par, serial_if_stop, slave_addr, timeout)
         # Konfiguration der Input Register nach Datenblatt
         self.input_register = {
             "Spannung_L1": {
@@ -629,7 +629,8 @@ class SDM630(ModBusRTU):
                         try:
                             messwert = self.instrument.read_float(functioncode=4,  # 3,4,8,16 for SDM630  4 ok?
                                                                   registeraddress=self.input_register[key]["port"],
-                                                                  numberOfRegisters=self.input_register[key]["digits"])
+                                                                  number_of_registers=self.input_register[key][
+                                                                      "digits"])
                         except OSError:
                             fehler += 1
                             self.log.error("Kommunikationserror Nr. {}".format(fehler))
@@ -642,7 +643,6 @@ class SDM630(ModBusRTU):
                     if messwert is None:
                         self.log.warn("Value '{}' not available".format(key))
                     else:
-                        # TODO: messwertrunden abhängig des Registers machen
                         self.data[key] = round(messwert, 4)
                     self.log.debug("Value '{}' = '{}'".format(key, self.data[key]))
                 else:
@@ -675,14 +675,17 @@ def get_device_list():
 
 # for test or stand alone work
 if __name__ == '__main__':
+    import logging
     try:
-        em = SDM530(serial_if="/dev/ttyUSB0",
+        em = SDM530(logger=logging,
+                    serial_if="/dev/ttyUSB0",
                     serial_if_baud=38400,
                     # serial_if_baud=9600,
                     serial_if_byte=8,
                     serial_if_par=serial.PARITY_EVEN,
                     serial_if_stop=1,
-                    slave_addr=1)
+                    slave_addr=1,
+                    timeout=0.6)
 
         for wert in em.input_register:
             curEnergie = em.instrument.read_float(em.input_register[wert]["port"], 4, 2)
