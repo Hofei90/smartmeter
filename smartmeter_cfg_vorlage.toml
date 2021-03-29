@@ -5,6 +5,7 @@ serial_if_byte=8
 serial_if_par="E"
 serial_if_stop=1
 slave_addr=1
+timeout=0.6
 
 
 [db]

@@ -1,7 +1,7 @@
 certifi
 chardet
 idna
-minimalmodbus==0.7
+minimalmodbus
 peewee
 pyserial
 requests
