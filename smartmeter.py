@@ -36,7 +36,7 @@ if CONFIG["telegram_bot"]["token"]:
 
 class MessHandler:
     """
-    MessHandler ist zuständig für das organiesieren, dass Messwerte ausgelesen, gespeichert und in die Datenbank
+    MessHandler ist zustaendig für das organiesieren, dass Messwerte ausgelesen, gespeichert und in die Datenbank
     geschrieben werden.
     """
     def __init__(self, messregister):
@@ -49,31 +49,31 @@ class MessHandler:
         self.pausenzeit = CONFIG["mess_cfg"]["messintervall"]
 
     def set_schnelles_messintervall(self, *_):
-        """Kommt von außerhalb das Signal USR2 wird das Mess und Sendeintervall verkürzt"""
+        """Kommt von außerhalb das Signal USR2 wird das Mess und Sendeintervall verkuerzt"""
         self.schnelles_messen = True
         self.startzeit_schnelles_messen = datetime.datetime.now()
         self.intervall_daten_senden = CONFIG["mess_cfg"]["schnelles_messintervall"]
         self.pausenzeit = CONFIG["mess_cfg"]["schnelles_messintervall"]
 
     def off_schnelles_messintervall(self):
-        """Mess und Sendeintervall wird wieder auf Standardwerte zurückgesetzt"""
+        """Mess und Sendeintervall wird wieder auf Standardwerte zurueckgesetzt"""
         self.schnelles_messen = False
         self.startzeit_schnelles_messen = datetime.datetime(1970, 1, 1)
         self.intervall_daten_senden = CONFIG["mess_cfg"]["intervall_daten_senden"]
         self.pausenzeit = CONFIG["mess_cfg"]["messintervall"]
 
     def add_messwerte(self, messwerte):
-        """Speichern der Messwerte zwischen bis zu Ihrer Übertragung"""
+        """Speichern der Messwerte zwischen bis zu Ihrer Uebertragung"""
         self.messwerte_liste.append(messwerte)
 
     def schreibe_messwerte(self, datenbankschnittstelle):
-        """Gespeicherte Messwerte in die Datenbank geschrieben"""
+        """Gespeicherte Messwerte in die Datenbank schreiben"""
         LOGGER.debug("Sende Daten")
         datenbankschnittstelle.insert_many(self.messwerte_liste)
         self.messwerte_liste = []
 
     def erstelle_auszulesende_messregister(self):
-        """Prüft welche Messwerte nach Ihren Intervalleinstellungen im aktuellen Durchlauf ausgelesen werden müssen"""
+        """Prueft welche Messwerte nach Ihren Intervalleinstellungen im aktuellen Durchlauf ausgelesen werden muessen"""
         if self.schnelles_messen:
             return [key for key in self.messregister]
         else:
@@ -127,9 +127,9 @@ class Datenbankschnittstelle:
 
 def schreibe_config(config, configfile):
     with open(configfile, "a", encoding="UTF-8") as file:
-        file.write(f"# Nach dem wievielten Durchläuf der jeweilige Wert ausgelesen werden soll \n"
+        file.write(f"# Nach dem wievielten Durchlauf der jeweilige Wert ausgelesen werden soll \n"
                    f"# Ausschalten mit false\n"
-                   f"# Einträge werden automatisch nach dem ersten Start erstellt, Config anschließend nochmal prüfen\n"
+                   f"# Eintraege werden automatisch nach dem ersten Start erstellt, Config anschließend nochmal prüfen\n"
                    f"{toml.dumps(config)}")
     LOGGER.info("Durchlaufintervall in Config aktualisiert \n Programm wird beendet. Bitte neu starten")
     global nofailure
@@ -163,9 +163,7 @@ def erzeuge_messregister(smartmeter):
 def fehlermeldung_schreiben(fehlermeldung):
     """
     Schreibt nicht abgefangene Fehlermeldungen in eine sperate Datei, um so leichter Fehlermeldungen ausfindig machen zu
-    können welche noch Abgefangen werden müssen.
-    :param fehlermeldung:
-    :return:
+    koennen welche noch Abgefangen werden muessen.
     """
     with open(os.path.join(SKRIPTPFAD, FEHLERDATEI), "a") as file:
         file.write(fehlermeldung)
