@@ -20,7 +20,7 @@ SKRIPTPFAD = os.path.abspath(os.path.dirname(__file__))
 
 
 def load_config():
-    """Lädt die Konfiguration aus dem smartmeter_cfg.toml File"""
+    """Laedt die Konfiguration aus dem smartmeter_cfg.toml File"""
     configfile = os.path.join(SKRIPTPFAD, CONFIGDATEI)
     with open(configfile) as conffile:
         config = toml.loads(conffile.read())
