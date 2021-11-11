@@ -9,7 +9,7 @@ timeout=0.6
 
 
 [db]
-db = "<db_adapter>"  # "postgresql" | "mysql" | "sqlite" | "postgrest"
+db = "<db_adapter>"  # "postgresql" | "mysql" | "sqlite" | "postgrest | influx"
 
     [db.postgresql]
     database = "<db>"
@@ -34,6 +34,12 @@ db = "<db_adapter>"  # "postgresql" | "mysql" | "sqlite" | "postgrest"
     token = "<token>"
     table = "<table>"
 
+    [db.influx]
+    host = "<host>"
+    port = 0
+    username = "<username>"
+    password = "<pw>"
+    database = "<db>"
 
 [telegram_bot]
 token = "<telegrambot_token>"  # Token oder false, false ohne " " schreiben

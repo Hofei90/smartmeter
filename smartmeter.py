@@ -12,6 +12,7 @@ import electric_meter
 import setup_logging
 import db_model as db
 import db_postgrest_model as db_postgrest
+import influxdb
 
 
 CONFIGDATEI = "smartmeter_cfg.toml"
@@ -103,6 +104,8 @@ class Datenbankschnittstelle:
             self.url = "{url}{table}".format(url=url,
                                              table=CONFIG["db"]["postgrest"]["table"])
             self.none_messdaten = self.__none_messdaten_dictionary_erstellen()
+        elif db_adapter == "influx":
+            self.influxdb = influxdb.InfluxDBClient(**CONFIG["db"].get(db_adapter))
         else:
             self.headers = None
             self.url = None
@@ -111,9 +114,14 @@ class Datenbankschnittstelle:
             db.DB_PROXY.initialize(db_)
             db.create_tables(self.db_tables)
 
+        self.device = device
+
     def insert_many(self, daten):
         if self.db_adapter == "postgrest":
             db_postgrest.sende_daten(self.url, self.headers, daten, self.none_messdaten, LOGGER)
+        elif self.db_adapter == "influx":
+            influx_daten = convert_daten_to_influxformat(daten)
+            self.influxdb.write_points(influx_daten, self.device)
         else:
             db.insert_many(daten, self.db_table)
 
@@ -135,6 +143,15 @@ def schreibe_config(config, configfile):
     global nofailure
     nofailure = True
     exit(0)
+
+
+def convert_daten_to_influxformat(daten, device):
+    influx_daten = {"measurement": device,
+                    "fields": {}
+                    }
+    for key, value in daten.items():
+        influx_daten["fields"][key]: value
+    return influx_daten
 
 
 def erzeuge_durchlaufintervall(smartmeter):

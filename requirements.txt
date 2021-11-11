@@ -8,3 +8,4 @@ requests
 toml
 urllib3
 systemd-python
+influxdb~=5.3.1
