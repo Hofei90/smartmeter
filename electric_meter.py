@@ -96,6 +96,94 @@ class DDS353B(ModBusRTU):
         return self.data
 
 
+class SDM72DM(ModBusRTU):
+    """
+    Driver class for energy meter 'SDM72D-M-ModBus' (B+G E-Tech EASTRON)
+    Data Format: 4 bytes (2 registers) per parameter. Floating point format ( to IEEE 754)
+    Most significant register first (Default).
+    The default may be changed if required -See Holding Register "Register Order" parameter.
+    """
+
+    def __init__(self, logger, serial_if, serial_if_baud, serial_if_byte,
+                 serial_if_par, serial_if_stop, slave_addr, timeout):
+        super().__init__(logger, serial_if, serial_if_baud, serial_if_byte,
+                         serial_if_par, serial_if_stop, slave_addr, timeout)
+        # Konfiguration der Input Register nach Datenblatt
+        self.input_register = {
+            "aktuelle_Gesamtwirkleistung": {
+                "port": 52, "digits": 2, "Unit": "W", "use": True},
+            "Import_Wh_seit_reset": {
+                "port": 72, "digits": 2, "Unit": "kWh", "use": True},
+            "Export_Wh_seit_reset": {
+                "port": 74, "digits": 2, "Unit": "kWh", "use": True},
+            "Total_kwh": {
+                "port": 342, "digits": 2, "Unit": "kWh", "use": True},
+            "Settable_total_kWh": {
+                "port": 384, "digits": 2, "Unit": "kWh", "use": True},
+            "Settable_import_kWh": {
+                "port": 388, "digits": 2, "Unit": "kWh", "use": True},
+            "Setabble_export_kWh": {
+                "port": 390, "digits": 2, "Unit": "kWh", "use": True},
+            "Import_power": {
+                "port": 1280, "digits": 2, "Unit": "W", "use": True},
+            "Export_power": {
+                "port": 1282, "digits": 2, "Unit": "W", "use": True},
+        }
+
+    def read_input_values(self, input_register_keys=None):
+        """
+        Read all in self.input_register defined data points and stored the result as float value
+        into self.data dictionary
+        :return: self.data dictionary
+        """
+        self.data = {}
+        if input_register_keys is None:
+            input_register_keys = self.get_input_keys()
+        if self.instrument is not None:
+            for key in input_register_keys:
+                self.log.debug("try: key='{}', reg='{}', digits='{}'".format(key, self.input_register[key]["port"],
+                                                                             self.input_register[key]["digits"]))
+                if self.input_register[key]["use"] is True:
+
+                    fehler = 0
+                    while True:  # Anzahl der Versuche
+                        try:
+                            messwert = self.instrument.read_float(functioncode=4,  # fix (!) for this model
+                                                                  registeraddress=self.input_register[key]["port"],
+                                                                  number_of_registers=self.input_register[key][
+                                                                      "digits"])
+                        except OSError:
+                            fehler += 1
+                            self.log.error("Kommunikationserror Nr. {}".format(fehler))
+                            sleep(5)
+                            if fehler > 5:  # Anzahl der Versuche
+                                raise OSError
+                        else:
+                            break
+
+                    if messwert is None:
+                        self.log.warn("Value '{}' not available".format(key))
+                    else:
+                        self.data[key] = round(messwert, 4)
+                    self.log.debug("Value '{}' = '{}'".format(key, self.data[key]))
+                else:
+                    self.log.debug("Value '{}' not used!".format(key))
+                    pass
+        else:
+            err_msg = "No instrument available!"
+            self.log.error(err_msg)
+            return None
+        return self.data
+
+    def get_input_keys(self):
+        """
+        Hilfsmethode zur Erstellung der Intervallklassen
+        :return:
+        """
+        input_register_keys = [key for key in self.input_register]
+        return input_register_keys
+
+
 class SDM230(ModBusRTU):
     """
     Driver class for energy meter 'SDM230-ModBus' (B+G E-Tech EASTRON)
@@ -666,9 +754,10 @@ class SDM630(ModBusRTU):
 def get_device_list():
     device_list = {
         "DDS353B": DDS353B,
+        "SDM72DM": SDM72DM,
         "SDM230": SDM230,
         "SDM530": SDM530,
-        "SDM630": SDM630
+        "SDM630": SDM630,
     }
     return device_list
 

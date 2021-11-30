@@ -13,6 +13,19 @@ class DDS353B(BaseModel):
     power = peewee.FloatField(null=True)
 
 
+class SDM72DM(BaseModel):
+    ts = peewee.DateTimeField(primary_key=True)
+    aktuelle_gesamtwirkleistung = peewee.FloatField(null=True)
+    import_wh_seit_reset = peewee.FloatField(null=True)
+    export_wh_seit_reset = peewee.FloatField(null=True)
+    total_kwh = peewee.FloatField(null=True)
+    settable_total_kwh = peewee.FloatField(null=True)
+    settable_import_kwh = peewee.FloatField(null=True)
+    setabble_export_kwh = peewee.FloatField(null=True)
+    import_power = peewee.FloatField(null=True)
+    export_power = peewee.FloatField(null=True)
+
+
 class SDM230(BaseModel):
     ts = peewee.DateTimeField(primary_key=True)
     spannung_l1 = peewee.FloatField(null=True)
@@ -202,6 +215,8 @@ class SDM630(BaseModel):
 def get_smartmeter_table(device):
     if device == "DDS353B":
         return DDS353B
+    elif device == "SDM72DM":
+        return SDM72DM
     elif device == "SDM230":
         return SDM230
     elif device == "SDM530":
