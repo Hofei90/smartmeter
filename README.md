@@ -58,6 +58,19 @@ pip3 install --user -r requirements.txt
 git submodule init && git submodule update
 ```
 
+Wird als Datenbank **mysql/mariadb** verwendet, so muss noch folgendes Paket installiert werden
+```console
+pip3 install --user PyMySQL
+```
+
+Wird als Datenbank **PostgreSQL**, so muss noch folgendes Paket installiert werden
+```console
+pip3 install --user psycopg2
+```
+
+Für **sqlite3** ist keine weitere Installation notwendig.
+
+
 ### Telegram (Optional)
 Ist der Telegrambot nicht erwünscht, so muss in der Konfigurationsdatei `false` eingetragen werden.
 Aktuell ist es nur möglich, mit dem Bot das Messintervall zu verkürzen.
