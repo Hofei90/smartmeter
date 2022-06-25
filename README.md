@@ -8,13 +8,13 @@ Stromzähler/Smartmeter via ModBus und Raspberry Pi auslesen, die Werte in einer
 
 ## Benötigte Hardware
 
-* Verwendeter Stromzähler: [
-SDM530 von bg-etech](https://stromzähler.eu/stromzaehler/drehstromzaehler/fuer-hutschiene-ungeeicht/22/sdm530modbus-multifunktionsmessgeraet-fuer-din-hutschiene?c=93)
+* Verwendeter Stromzähler: 
+SDM530 von bg-etech
 
-Ebenso möglich ist der Typ DDS353B, SDM230, SDM630 (hier Danke für die Integration an 
+Ebenso möglich ist der Typ DDS353B, [SDM230](https://stromzähler.eu/stromzaehler/wechselstromzaehler/fuer-hutschiene-geeicht/216/sdm230modbus-mid-1phasen-2te-lcd-wechselstromzaehler?number=1121216-M22), [SDM630](https://stromzähler.eu/stromzaehler/drehstromzaehler/fuer-hutschiene-geeicht/120/sdm630modbus-v2-mid-zweirichtungs-multifunktionsstromzaehler-mit-rs485-und-2x-s0?number=1141213-M22) (hier Danke für die Integration an 
 [rpi-joe](https://forum-raspberrypi.de/user/5786-rpi-joe/) aus dem deutschen Raspberry Pi Forum)
 * Raspberry Pi mit Zubehör
-* USB ModBus Adapter: z.B. [hier](https://www.ebay.de/itm/RS485-Konverter-Bus-Adapter-Seriell-USB-RS-485-Schnittstelle-Modbus-Raspberry-Pi/252784174363?ssPageName=STRK%3AMEBIDX%3AIT&_trksid=p2060353.m2749.l2649)
+* USB ModBus Adapter: z.B. [hier](https://www.ebay.de/itm/255283310832)
   
   Gibts auch billiger, aber da war mir die Wartezeit im Verhältnis zum Preis zu hoch
 * geschirmtes Buskabel (lt. Anleitung vom Stromzähler)
