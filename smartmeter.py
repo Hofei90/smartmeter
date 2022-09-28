@@ -12,6 +12,7 @@ import electric_meter
 import setup_logging
 import db_model as db
 import db_postgrest_model as db_postgrest
+from mqtt_model import MQTTModel as mqtt
 
 
 CONFIGDATEI = "smartmeter_cfg.toml"
@@ -33,6 +34,13 @@ CONFIG = load_config()
 if CONFIG["telegram_bot"]["token"]:
     from smartmeter_telegrambot import SmartmeterBot
 
+#Only create model if mqtt is configured
+if CONFIG["mqtt"]:
+    MQTTModel =  mqtt(broker=CONFIG["mqtt"]["broker"],
+                        port=CONFIG["mqtt"]["port"],
+                        topic=CONFIG["mqtt"]["topic"],
+                        username=CONFIG["mqtt"]["username"],
+                        password=CONFIG["mqtt"]["password"])
 
 class MessHandler:
     """
@@ -70,6 +78,10 @@ class MessHandler:
         """Gespeicherte Messwerte in die Datenbank schreiben"""
         LOGGER.debug("Sende Daten")
         datenbankschnittstelle.insert_many(self.messwerte_liste)
+        #if mqtt enabled publish the values
+        if CONFIG["mqtt"]:
+            MQTTModel.send(self.messwerte_liste, LOGGER)
+
         self.messwerte_liste = []
 
     def erstelle_auszulesende_messregister(self):

@@ -8,3 +8,4 @@ requests
 toml
 urllib3
 systemd-python
+paho-mqtt
