@@ -12,7 +12,7 @@ import electric_meter
 import setup_logging
 import db_model as db
 import db_postgrest_model as db_postgrest
-from mqtt import MQTT as mqtt
+import mqtt
 
 
 CONFIGDATEI = "smartmeter_cfg.toml"
@@ -34,13 +34,14 @@ CONFIG = load_config()
 if CONFIG["telegram_bot"]["token"]:
     from smartmeter_telegrambot import SmartmeterBot
 
-#Model Initialisierung nur wenn is_active ist True
+# Model Initialisierung nur wenn is_active ist True
 if CONFIG["mqtt"]["is_active"]:
-    MQTT =  mqtt(broker=CONFIG["mqtt"]["broker"],
-                    port=CONFIG["mqtt"]["port"],
-                    topic=CONFIG["mqtt"]["topic"],
-                    username=CONFIG["mqtt"]["username"],
-                    password=CONFIG["mqtt"]["password"])
+    MQTT_ = mqtt.MQTT(broker=CONFIG["mqtt"]["broker"],
+                      port=CONFIG["mqtt"]["port"],
+                      topic=CONFIG["mqtt"]["topic"],
+                      username=CONFIG["mqtt"]["username"],
+                      password=CONFIG["mqtt"]["password"])
+
 
 class MessHandler:
     """
@@ -78,9 +79,9 @@ class MessHandler:
         """Gespeicherte Messwerte in die Datenbank schreiben"""
         LOGGER.debug("Sende Daten")
         datenbankschnittstelle.insert_many(self.messwerte_liste)
-        #Wann mqtt active ist publizieren wir auch unsere Werten
+
         if CONFIG["mqtt"]["is_active"]:
-            MQTT.send(self.messwerte_liste, LOGGER)
+            MQTT_.send(self.messwerte_liste, LOGGER)
 
         self.messwerte_liste = []
 
@@ -141,7 +142,7 @@ def schreibe_config(config, configfile):
     with open(configfile, "a", encoding="UTF-8") as file:
         file.write(f"# Nach dem wievielten Durchlauf der jeweilige Wert ausgelesen werden soll \n"
                    f"# Ausschalten mit false\n"
-                   f"# Eintraege werden automatisch nach dem ersten Start erstellt, Config anschließend nochmal prüfen\n"
+                   f"# Eintraege werden automatisch bei dem ersten Start erstellt, Config anschließend nochmal prüfen\n"
                    f"{toml.dumps(config)}")
     LOGGER.info("Durchlaufintervall in Config aktualisiert \n Programm wird beendet. Bitte neu starten")
     global nofailure
