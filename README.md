@@ -76,6 +76,10 @@ Ist der Telegrambot nicht erwünscht, so muss in der Konfigurationsdatei `false`
 Aktuell ist es nur möglich, mit dem Bot das Messintervall zu verkürzen.
 
 
+### MQTT (Optional)
+Wird eine Datenübertragung an MQTT gewünscht, so muss in der Konfigurationsdatei is_active auf `true` gesetzt werden
+und die Konfiguration für MQTT ausgefüllt werden.
+
 ## Programm einrichten
 
 ### Konfiguration anpassen
