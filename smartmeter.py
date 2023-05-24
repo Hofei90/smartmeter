@@ -50,7 +50,7 @@ class MessHandler:
     """
     def __init__(self, messregister):
         self.schnelles_messen = False
-        self.startzeit_schnelles_messen = datetime.datetime(1970, 1, 1)
+        self.startzeit_schnelles_messen = datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)
         self.messregister = messregister
         self.messregister_save = deepcopy(messregister)
         self.messwerte_liste = []
@@ -60,14 +60,14 @@ class MessHandler:
     def set_schnelles_messintervall(self, *_):
         """Kommt von außerhalb das Signal USR2 wird das Mess und Sendeintervall verkuerzt"""
         self.schnelles_messen = True
-        self.startzeit_schnelles_messen = datetime.datetime.now()
+        self.startzeit_schnelles_messen = datetime.datetime.now(datetime.timezone.utc)
         self.intervall_daten_senden = CONFIG["mess_cfg"]["schnelles_messintervall"]
         self.pausenzeit = CONFIG["mess_cfg"]["schnelles_messintervall"]
 
     def off_schnelles_messintervall(self):
         """Mess und Sendeintervall wird wieder auf Standardwerte zurueckgesetzt"""
         self.schnelles_messen = False
-        self.startzeit_schnelles_messen = datetime.datetime(1970, 1, 1)
+        self.startzeit_schnelles_messen = datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)
         self.intervall_daten_senden = CONFIG["mess_cfg"]["intervall_daten_senden"]
         self.pausenzeit = CONFIG["mess_cfg"]["messintervall"]
 
@@ -228,9 +228,9 @@ def main():
 
             # Messauftrag abarbeiten und Zeitpunk ergänzen
             if messauftrag:
-                start_messzeitpunkt = datetime.datetime.now()
+                start_messzeitpunkt = datetime.datetime.now(datetime.timezone.utc)
                 messwerte = smartmeter.read_input_values(messauftrag)
-                LOGGER.debug("Messdauer: {}".format(datetime.datetime.now() - start_messzeitpunkt))
+                LOGGER.debug("Messdauer: {}".format(datetime.datetime.now(datetime.timezone.utc) - start_messzeitpunkt))
                 messwerte["ts"] = now
                 messhandler.add_messwerte(messwerte)
 
@@ -242,11 +242,12 @@ def main():
 
             # Schreibe die Messdaten in die Datenbank nach eingestellten Intervall
             if (now - zeitpunkt_daten_gesendet).total_seconds() > messhandler.intervall_daten_senden:
-                start_schreiben = datetime.datetime.now()
+                start_schreiben = datetime.datetime.now(datetime.timezone.utc)
                 messhandler.schreibe_messwerte(datenbankschnittstelle)
-                LOGGER.debug("DB Dauer schreiben: {}".format(datetime.datetime.now() - start_schreiben))
+                LOGGER.debug("DB Dauer schreiben: {}".format(
+                    datetime.datetime.now(datetime.timezone.utc) - start_schreiben))
                 zeitpunkt_daten_gesendet = now
-            LOGGER.debug("Durchlaufdauer: {}".format(datetime.datetime.now() - now))
+            LOGGER.debug("Durchlaufdauer: {}".format(datetime.datetime.now(datetime.timezone.utc) - now))
         time.sleep(0.2)
 
 
