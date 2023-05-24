@@ -193,16 +193,16 @@ def main():
     # SIGUSR2 setzt das schnelle Messintervall
     signal.signal(signal.SIGUSR2, messhandler.set_schnelles_messintervall)
 
-    zeitpunkt_daten_gesendet = datetime.datetime(1970, 1, 1)
-    start_messzeitpunkt = datetime.datetime(1970, 1, 1)
+    zeitpunkt_daten_gesendet = datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)
+    start_messzeitpunkt = datetime.datetime(1970, 1, 1, tzinfo=datetime.timezone.utc)
 
     LOGGER.info("Initialisierung abgeschlossen - Start Messungen")
 
     while True:
-        now = datetime.datetime.now()
+        now = datetime.datetime.utcnow()
         now = now.replace(microsecond=0)
 
-        # Prüfen ob schnelles Messen aktiv ist und ob dies wieder auf Standard zurück gesetzt werden muss
+        # Prüfen, ob schnelles Messen aktiv ist und ob dies wieder auf Standard zurückgesetzt werden muss
         if messhandler.schnelles_messen:
             if (now - messhandler.startzeit_schnelles_messen).total_seconds() > \
                     CONFIG["mess_cfg"]["dauer_schnelles_messintervall"]:
@@ -210,7 +210,7 @@ def main():
 
         if (now - start_messzeitpunkt).total_seconds() > messhandler.pausenzeit:
 
-            # Prüfe welche Messwerte auszulesen sind
+            # Prüfe, welche Messwerte auszulesen sind
             messauftrag = messhandler.erstelle_auszulesende_messregister()
 
             # Messauftrag abarbeiten und Zeitpunk ergänzen
