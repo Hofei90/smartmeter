@@ -212,7 +212,7 @@ def main():
     LOGGER.info("Initialisierung abgeschlossen - Start Messungen")
 
     while True:
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.timezone.utc)
         now = now.replace(microsecond=0)
 
         # Prüfen, ob schnelles Messen aktiv ist und ob dies wieder auf Standard zurückgesetzt werden muss
