@@ -34,6 +34,13 @@ db = "<db_adapter>"  # "postgresql" | "mysql" | "sqlite" | "postgrest"
     token = "<token>"
     table = "<table>"
 
+[mqtt]
+broker = "<mqttBroker>"
+port = "<mqtt Port>"
+username = "<username>" # empty disables authentication
+password = "<password>" # empty disables authentication
+topic = "<topic>" # empty defaults to /smartmeter/
+is_active = false # aktiv wenn true, inaktiv wenn false
 
 [telegram_bot]
 token = "<telegrambot_token>"  # Token oder false, false ohne " " schreiben

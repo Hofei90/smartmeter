@@ -1,10 +1,7 @@
-certifi
-chardet
-idna
 minimalmodbus
 peewee
 pyserial
 requests
 toml
-urllib3
 systemd-python
+paho-mqtt
