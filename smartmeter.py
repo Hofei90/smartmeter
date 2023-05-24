@@ -12,7 +12,6 @@ import electric_meter
 import setup_logging
 import db_model as db
 import db_postgrest_model as db_postgrest
-import mqtt
 
 
 CONFIGDATEI = "smartmeter_cfg.toml"
@@ -36,6 +35,7 @@ if CONFIG["telegram_bot"]["token"]:
 
 # Model Initialisierung nur wenn is_active ist True
 if CONFIG["mqtt"]["is_active"]:
+    import mqtt
     MQTT_ = mqtt.MQTT(broker=CONFIG["mqtt"]["broker"],
                       port=CONFIG["mqtt"]["port"],
                       topic=CONFIG["mqtt"]["topic"],
