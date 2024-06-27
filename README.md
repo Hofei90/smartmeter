@@ -12,7 +12,7 @@ Stromzähler/Smartmeter via ModBus und Raspberry Pi auslesen, die Werte in einer
 SDM530 von bg-etech
 
 Ebenso möglich ist der Typ DDS353B, [SDM230](https://stromzähler.eu/stromzaehler/wechselstromzaehler/fuer-hutschiene-geeicht/216/sdm230modbus-mid-1phasen-2te-lcd-wechselstromzaehler?number=1121216-M22), [SDM630](https://stromzähler.eu/stromzaehler/drehstromzaehler/fuer-hutschiene-geeicht/120/sdm630modbus-v2-mid-zweirichtungs-multifunktionsstromzaehler-mit-rs485-und-2x-s0?number=1141213-M22) (hier Danke für die Integration an 
-[rpi-joe](https://forum-raspberrypi.de/user/5786-rpi-joe/) aus dem deutschen Raspberry Pi Forum)
+[rpi-joe](https://forum-raspberrypi.de/user/5786-rpi-joe/) aus dem deutschen Raspberry Pi Forum), WS100 (nur 2 Werte aktuell integriert)
 * Raspberry Pi mit Zubehör
 * USB ModBus Adapter: z.B. [hier](https://www.ebay.de/itm/255283310832)
   

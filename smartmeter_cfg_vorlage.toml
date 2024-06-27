@@ -48,7 +48,7 @@ token = "<telegrambot_token>"  # Token oder false, false ohne " " schreiben
 
 [mess_cfg]
 # Auswahl des verwendeten Models
-# Verfügbar: DDS353B, SDM72DM, SDM230, SDM530, SDM630
+# Verfügbar: DDS353B, SDM72DM, SDM230, SDM530, SDM630, WS100
 device = "<modelname>"
 messintervall = 10  # in Sekunden
 schnelles_messintervall = 1  # in Sekunden

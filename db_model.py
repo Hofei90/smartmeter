@@ -212,6 +212,12 @@ class SDM630(BaseModel):
     total_l3_kvarh = peewee.FloatField(null=True)
 
 
+class WS100(BaseModel):
+    ts = peewee.DateTimeField(primary_key=True)
+    gesamtwirkleistung = peewee.FloatField(null=True)
+    total_kwh = peewee.FloatField(null=True)
+
+
 def get_smartmeter_table(device):
     if device == "DDS353B":
         return DDS353B
@@ -223,6 +229,8 @@ def get_smartmeter_table(device):
         return SDM530
     elif device == "SDM630":
         return SDM630
+    elif device == "WS100":
+        return WS100
     else:
         raise ValueError("Devicename falsch oder nicht unterstützt?")
 
