@@ -3,5 +3,5 @@ peewee~=3.13.1
 pyserial~=3.4
 requests~=2.31.0
 toml~=0.10.2
-systemd-python~=234
+systemd-python==234
 paho-mqtt~=1.6.1
